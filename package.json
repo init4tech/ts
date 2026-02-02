@@ -1,0 +1,83 @@
+{
+  "name": "@signet/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Signet Orders - create, sign, and verify orders compatible with signet-types",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./constants": {
+      "import": "./dist/constants/index.js",
+      "types": "./dist/constants/index.d.ts"
+    },
+    "./signing": {
+      "import": "./dist/signing/index.js",
+      "types": "./dist/signing/index.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./abi": {
+      "import": "./dist/abi/index.js",
+      "types": "./dist/abi/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:anvil": "vitest run --config vitest.anvil.config.ts",
+    "lint": "eslint src tests",
+    "lint:fix": "eslint src tests --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build"
+  },
+  "peerDependencies": {
+    "viem": "^2.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.39.2",
+    "prettier": "^3.4.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.54.0",
+    "viem": "^2.21.0",
+    "vitest": "^2.1.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/init4tech/signet-sdk-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/init4tech/signet-sdk-ts/issues"
+  },
+  "homepage": "https://github.com/init4tech/signet-sdk-ts#readme",
+  "keywords": [
+    "signet",
+    "ethereum",
+    "eip712",
+    "permit2",
+    "orders",
+    "signing",
+    "viem",
+    "blockchain"
+  ]
+}

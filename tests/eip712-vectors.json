@@ -1,0 +1,104 @@
+[
+  {
+    "name": "minimal",
+    "chain_id": 1,
+    "order_contract": "0x0000000000000000000000000000000000000000",
+    "permitted": [
+      {
+        "token": "0x0000000000000000000000000000000000000000",
+        "amount": "0x0"
+      }
+    ],
+    "nonce": "0x0",
+    "deadline": "0x0",
+    "outputs": [
+      {
+        "token": "0x0000000000000000000000000000000000000000",
+        "amount": "0x0",
+        "recipient": "0x0000000000000000000000000000000000000000",
+        "chain_id": 0
+      }
+    ],
+    "expected_domain_separator": "0x866a5aba21966af95d6c7ab78eb2b2fc913915c28be3b9aa07cc04ff903e3f28",
+    "expected_struct_hash": "0xe6434259ffbe95d5ec1f3fbdad292e35697f3df6e2d6485013c87b38dc1334f0",
+    "expected_signing_hash": "0x4c8eb855427d98f29425e966e3d7526f9ed6b787a23895d12069f939fd21cc07"
+  },
+  {
+    "name": "mainnet_usdc_swap",
+    "chain_id": 1,
+    "order_contract": "0x96f44ddc3bc8892371305531f1a6d8ca2331fe6c",
+    "permitted": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "0xf4240"
+      }
+    ],
+    "nonce": "0x3039",
+    "deadline": "0x6553f100",
+    "outputs": [
+      {
+        "token": "0x0000000000000000000000000000000000000000",
+        "amount": "0x6f05b59d3b20000",
+        "recipient": "0x1234567890123456789012345678901234567890",
+        "chain_id": 1
+      }
+    ],
+    "expected_domain_separator": "0x866a5aba21966af95d6c7ab78eb2b2fc913915c28be3b9aa07cc04ff903e3f28",
+    "expected_struct_hash": "0x2f64600749a894708bceaca8855977edfa39e469be77fa4141e4c470eb284de9",
+    "expected_signing_hash": "0x235b6c8f35e1b8af82c4cce69812ae40aad4e0e7317bce5322b71cbe67102de2"
+  },
+  {
+    "name": "rollup_cross_chain",
+    "chain_id": 519,
+    "order_contract": "0x000000000000007369676e65742d6f7264657273",
+    "permitted": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "0x4c4b40"
+      }
+    ],
+    "nonce": "0xf423f",
+    "deadline": "0x6b49d200",
+    "outputs": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "0x2625a0",
+        "recipient": "0x1111111111111111111111111111111111111111",
+        "chain_id": 1
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "0x2625a0",
+        "recipient": "0x2222222222222222222222222222222222222222",
+        "chain_id": 519
+      }
+    ],
+    "expected_domain_separator": "0xb9763ec6fa56d573bb57683efe8980ae88b28d02923686476e9f03012cf86930",
+    "expected_struct_hash": "0x9bcf4d29f950367a840fa155f63b92dd623ad66fa5214977468f15f62bf24193",
+    "expected_signing_hash": "0xcbb98baeac6cc33d54613eff26f961554ef5af8873905e1fc320d1cb8883bc3d"
+  },
+  {
+    "name": "large_amounts",
+    "chain_id": 1,
+    "order_contract": "0x96f44ddc3bc8892371305531f1a6d8ca2331fe6c",
+    "permitted": [
+      {
+        "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amount": "0x21e19e0c9bab2400000"
+      }
+    ],
+    "nonce": "0xffffffffffffffff",
+    "deadline": "0xffffffffffffffff",
+    "outputs": [
+      {
+        "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amount": "0x21e19e0c9bab2400000",
+        "recipient": "0x5555555555555555555555555555555555555555",
+        "chain_id": 1
+      }
+    ],
+    "expected_domain_separator": "0x866a5aba21966af95d6c7ab78eb2b2fc913915c28be3b9aa07cc04ff903e3f28",
+    "expected_struct_hash": "0xe676d937ca9f6c6298ce54f0f3e667f199b386087e6b2f20083522170dd5095c",
+    "expected_signing_hash": "0xa7302e15c4eea4c3226c73af6c95d1641e42e23e466ea4a67c88555e224891c6"
+  }
+]

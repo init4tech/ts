@@ -1,0 +1,196 @@
+[
+  {
+    "expectedOrderHash": "0x33ed1473731924de70307a7b458dab12b27c9354ca49d18d84511f6b84e5c956",
+    "expectedOrderHashPreImage": "0xcf07f05dc4374c8745b749d1d11fcafbbc013db40702724e94c5b0640d8b5c16290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e5635cf1812dbd624ffdbc277eb355e6ad892c44c5aef3fab71f497739ac62a5b2b7a2bd9a4b95f3f818ae90a7b8a8913f7e95fbb80add1d8304a4db2bf00f6494d0",
+    "name": "minimal_order",
+    "signedOrder": {
+      "outputs": [
+        {
+          "amount": "0x0",
+          "chainId": 0,
+          "recipient": "0x0000000000000000000000000000000000000000",
+          "token": "0x0000000000000000000000000000000000000000"
+        }
+      ],
+      "owner": "0x0000000000000000000000000000000000000000",
+      "permit": {
+        "deadline": "0x0",
+        "nonce": "0x0",
+        "permitted": [
+          {
+            "amount": "0x0",
+            "token": "0x0000000000000000000000000000000000000000"
+          }
+        ]
+      },
+      "signature": "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000021b"
+    }
+  },
+  {
+    "expectedOrderHash": "0x40fb849b8e0fa7ccca85f4d69660eddd83363f575bc218f0edf81b0358658702",
+    "expectedOrderHashPreImage": "0xe5c76a108eb0c9c7cd782c4d16f7a844b1a0dc3657f18608ad3f7207f6cad9e97f55a2a892873349083873c58e5ac265efb9f3f4944eca762cb442e9c5dfd049854953211d203372647eec740c4f949ea6cb0feda872468a279c40f8cf96c6cca2bd9a4b95f3f818ae90a7b8a8913f7e95fbb80add1d8304a4db2bf00f6494d0",
+    "name": "multi_input",
+    "signedOrder": {
+      "outputs": [
+        {
+          "amount": "0xde0b6b3a7640000",
+          "chainId": 1,
+          "recipient": "0x1234567890123456789012345678901234567890",
+          "token": "0x0000000000000000000000000000000000000000"
+        }
+      ],
+      "owner": "0x1234567890123456789012345678901234567890",
+      "permit": {
+        "deadline": "0x6553f100",
+        "nonce": "0x3039",
+        "permitted": [
+          {
+            "amount": "0xf4240",
+            "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+          },
+          {
+            "amount": "0x1e8480",
+            "token": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+          },
+          {
+            "amount": "0x5f5e100",
+            "token": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+          }
+        ]
+      },
+      "signature": "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000021b"
+    }
+  },
+  {
+    "expectedOrderHash": "0x7ced6e2f7e99b1b31db4c6a6b260ba848a0b810872332afbdca277abda27ff99",
+    "expectedOrderHashPreImage": "0x74b2b0bf50f0199a6c814c826efed9187473896e0d76083371b9904d0b5a5b0fc4b19c94482ce57afc842306f3696b8839c9bb4bab0e205987ceb6c7017d8571cf43eee11913a77180794c3bc892048a75c55301130a6d16f263de7921aedf73a2bd9a4b95f3f818ae90a7b8a8913f7e95fbb80add1d8304a4db2bf00f6494d0",
+    "name": "multi_output",
+    "signedOrder": {
+      "outputs": [
+        {
+          "amount": "0x2dc6c0",
+          "chainId": 1,
+          "recipient": "0x1111111111111111111111111111111111111111",
+          "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+        },
+        {
+          "amount": "0x2dc6c0",
+          "chainId": 1,
+          "recipient": "0x2222222222222222222222222222222222222222",
+          "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+        },
+        {
+          "amount": "0x3d0900",
+          "chainId": 1,
+          "recipient": "0x3333333333333333333333333333333333333333",
+          "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+        }
+      ],
+      "owner": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+      "permit": {
+        "deadline": "0x6b49d200",
+        "nonce": "0x1869f",
+        "permitted": [
+          {
+            "amount": "0x989680",
+            "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+          }
+        ]
+      },
+      "signature": "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000021b"
+    }
+  },
+  {
+    "expectedOrderHash": "0x807d54b20e040acefab926751bab0f64e0e97932b6931983b4961db074df0329",
+    "expectedOrderHashPreImage": "0x6b20098680a9586582123661e4f25535050b502feb5692af2a7845ec9a9f6167e0fa08a028e9fa3d0c582555cd03566ff5e0b14bbfea76f69c5e618e862848e6a010023908fdd08a9681836baf5ede0df7fc2a8c128734cc3de57fe1a970364ca2bd9a4b95f3f818ae90a7b8a8913f7e95fbb80add1d8304a4db2bf00f6494d0",
+    "name": "cross_chain",
+    "signedOrder": {
+      "outputs": [
+        {
+          "amount": "0x2625a0",
+          "chainId": 1,
+          "recipient": "0x4444444444444444444444444444444444444444",
+          "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+        },
+        {
+          "amount": "0x2625a0",
+          "chainId": 421614,
+          "recipient": "0x4444444444444444444444444444444444444444",
+          "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+        }
+      ],
+      "owner": "0xcafebabecafebabecafebabecafebabecafebabe",
+      "permit": {
+        "deadline": "0x684ee180",
+        "nonce": "0x309",
+        "permitted": [
+          {
+            "amount": "0x4c4b40",
+            "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+          }
+        ]
+      },
+      "signature": "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000021b"
+    }
+  },
+  {
+    "expectedOrderHash": "0x7401ff93a0f4d16b66cc5a51109808f6bb29560cce8d0d3e1fce44edc8474e27",
+    "expectedOrderHashPreImage": "0xf445032493745fb97063cf9dfa80fbeb72221503258fe44c31a523049ad63185d65ab468a8e3d743996a9cb99cd37aeaf6ec971bdb8cf85e9932c8726498c1b7fad122fe61af7b26a87d9b433d28ee9d0dbc7689adef845baba4d9857a1431e3a2bd9a4b95f3f818ae90a7b8a8913f7e95fbb80add1d8304a4db2bf00f6494d0",
+    "name": "large_amounts",
+    "signedOrder": {
+      "outputs": [
+        {
+          "amount": "0x21e19e0c9bab2400000",
+          "chainId": 1,
+          "recipient": "0x6666666666666666666666666666666666666666",
+          "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+        }
+      ],
+      "owner": "0x5555555555555555555555555555555555555555",
+      "permit": {
+        "deadline": "0xffffffffffffffff",
+        "nonce": "0xffffffffffffffff",
+        "permitted": [
+          {
+            "amount": "0x21e19e0c9bab2400000",
+            "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+          }
+        ]
+      },
+      "signature": "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000021b"
+    }
+  },
+  {
+    "expectedOrderHash": "0x4ba57f224dcc1004a4e13f12b73be043a00c7678c5c03cc24f4519db83d58ca0",
+    "expectedOrderHashPreImage": "0xe58356506a7331cbd9ddf35cd7efb231abb7e675c1cf405d2eb014313614a262db4b132b83c3bb7ebe024bea6d033262bd99407aa895a5a3e12d630b8c1868d586fb6c023a3a3b8092e211bf2b1b6a8c926ec9428b3da9cd81d0223f67f23962a2bd9a4b95f3f818ae90a7b8a8913f7e95fbb80add1d8304a4db2bf00f6494d0",
+    "name": "mainnet_config",
+    "signedOrder": {
+      "outputs": [
+        {
+          "amount": "0x2faf080",
+          "chainId": 1,
+          "recipient": "0x8888888888888888888888888888888888888888",
+          "token": "0x96f44ddc3bc8892371305531f1a6d8ca2331fe6c"
+        },
+        {
+          "amount": "0x2faf080",
+          "chainId": 519,
+          "recipient": "0x8888888888888888888888888888888888888888",
+          "token": "0x96f44ddc3bc8892371305531f1a6d8ca2331fe6c"
+        }
+      ],
+      "owner": "0x7777777777777777777777777777777777777777",
+      "permit": {
+        "deadline": "0x65920080",
+        "nonce": "0xf4240",
+        "permitted": [
+          {
+            "amount": "0x5f5e100",
+            "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+          }
+        ]
+      },
+      "signature": "0x000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000021b"
+    }
+  }
+]
