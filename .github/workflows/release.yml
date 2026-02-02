@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-tags: "true"
+          fetch-depth: "0"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+      - name: Create Release (if needed)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+        run: |
+          # Skip release on root commit (no parent)
+          if ! git rev-parse HEAD^ > /dev/null 2>&1; then
+            echo "# Skipped: root commit has no parent" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
+          echo "Checking if a new release is needed"
+          # get current version from package.json
+          PKG_VER="v$(node -p "require('./package.json').version")"
+          echo "Package version: $PKG_VER"
+          # get latest version from git tags
+          GIT_VER=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "none")
+          echo "Latest git tag: $GIT_VER"
+          if [ "$PKG_VER" == "$GIT_VER" ]; then
+            echo "# No new release needed" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          else
+            echo "New release needed"
+            gh release create "$PKG_VER" -t "$PKG_VER" --generate-notes
+            # publish to npm
+            pnpm publish --no-git-checks
+            # Add the release information to the github actions summary
+            echo "# New Release Created" >> $GITHUB_STEP_SUMMARY
+            echo "Tag: [$PKG_VER](https://github.com/${{ github.repository }}/releases/tag/${PKG_VER})" >> $GITHUB_STEP_SUMMARY
+            echo "Published to npm: [@signet-sh/sdk@${PKG_VER#v}](https://www.npmjs.com/package/@signet-sh/sdk/v/${PKG_VER#v})" >> $GITHUB_STEP_SUMMARY
+          fi
