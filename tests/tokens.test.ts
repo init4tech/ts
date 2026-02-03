@@ -65,11 +65,11 @@ describe("getAvailableTokens", () => {
 
 describe("mapTokenCrossChain", () => {
   it("maps WETH across chains", () => {
-    expect(mapTokenCrossChain("WETH", "hostToRollup")).toBe("WETH");
+    expect(mapTokenCrossChain("WETH")).toBe("WETH");
   });
 
   it("returns undefined for non-bridgeable token", () => {
-    expect(mapTokenCrossChain("ETH", "hostToRollup")).toBeUndefined();
+    expect(mapTokenCrossChain("ETH")).toBeUndefined();
   });
 });
 

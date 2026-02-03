@@ -1,10 +1,7 @@
 import { isAddressEqual } from "viem";
-import type { SignedOrder } from "../types/order.js";
 import type { SignedFill } from "../types/fill.js";
-
-function nowSeconds(): bigint {
-  return BigInt(Math.floor(Date.now() / 1000));
-}
+import type { SignedOrder } from "../types/order.js";
+import { nowSeconds } from "../utils/time.js";
 
 export function validateOrder(order: SignedOrder): void {
   const now = nowSeconds();
@@ -32,16 +29,16 @@ export function validateFill(fill: SignedFill): void {
     );
   }
 
-  for (let i = 0; i < outputs.length; i++) {
-    if (!isAddressEqual(outputs[i].token, permitted[i].token)) {
+  outputs.forEach((output, i) => {
+    if (!isAddressEqual(output.token, permitted[i].token)) {
       throw new Error(
-        `Token mismatch at index ${String(i)}: output ${outputs[i].token} != permitted ${permitted[i].token}`
+        `Token mismatch at index ${String(i)}: output ${output.token} != permitted ${permitted[i].token}`
       );
     }
-    if (outputs[i].amount !== permitted[i].amount) {
+    if (output.amount !== permitted[i].amount) {
       throw new Error(
-        `Amount mismatch at index ${String(i)}: output ${String(outputs[i].amount)} != permitted ${String(permitted[i].amount)}`
+        `Amount mismatch at index ${String(i)}: output ${String(output.amount)} != permitted ${String(permitted[i].amount)}`
       );
     }
-  }
+  });
 }

@@ -75,10 +75,10 @@ export function resolveTokenSymbol(
   if (!network) return undefined;
   const side = getSide(network, chainId, constants);
   if (!side) return undefined;
-  for (const [symbol, addr] of Object.entries(side)) {
-    if (isAddressEqual(addr, address)) return symbol as TokenSymbol;
-  }
-  return undefined;
+  const entry = Object.entries(side).find(([, addr]) =>
+    isAddressEqual(addr, address)
+  );
+  return entry?.[0] as TokenSymbol | undefined;
 }
 
 export function getAvailableTokens(

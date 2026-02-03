@@ -39,8 +39,6 @@ describe("encodeInitiatePermit2", () => {
     const recipient = "0x0000000000000000000000000000000000000003" as const;
     const data = encodeInitiatePermit2(order, recipient);
 
-    expect(data.startsWith("0x")).toBe(true);
-
     const decoded = decodeFunctionData({
       abi: rollupOrdersAbi,
       data,
@@ -53,8 +51,6 @@ describe("encodeFillPermit2", () => {
   it("produces decodable calldata", () => {
     const fill: SignedFill = { permit, outputs };
     const data = encodeFillPermit2(fill);
-
-    expect(data.startsWith("0x")).toBe(true);
 
     const decoded = decodeFunctionData({
       abi: hostOrdersAbi,

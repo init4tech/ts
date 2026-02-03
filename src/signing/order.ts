@@ -1,18 +1,14 @@
 import type { Account, Address, WalletClient } from "viem";
-import { PERMIT_BATCH_WITNESS_TRANSFER_FROM_TYPES } from "../types/permit2.js";
+import { toTokenPermissionsArray } from "../types/conversions.js";
+import type { ChainConfig, SignedOrder } from "../types/order.js";
 import type {
   Output,
   Permit2Batch,
   PermitBatchTransferFrom,
   TokenPermissions,
 } from "../types/primitives.js";
-import {
-  toOutputObjectArray,
-  toTokenPermissionsArray,
-} from "../types/conversions.js";
-import type { ChainConfig, SignedOrder } from "../types/order.js";
-import { permit2Domain } from "./domain.js";
 import { randomNonce } from "./nonce.js";
+import { resolveAccount, signPermit2WitnessTransfer } from "./permit2.js";
 
 /**
  * Builder for constructing unsigned orders.
@@ -152,34 +148,24 @@ export class UnsignedOrder {
     }
 
     const nonce = this._nonce ?? randomNonce();
+    const { signerAccount, ownerAddress } = resolveAccount(client, account);
+    const permitted = toTokenPermissionsArray(this._inputs);
 
-    const signerAccount = account ?? client.account;
-    if (!signerAccount) {
-      throw new Error("No account provided and client has no default account.");
-    }
-    const ownerAddress: Address =
-      typeof signerAccount === "string" ? signerAccount : signerAccount.address;
-
-    const domain = permit2Domain(this._chainId);
-
-    const message = {
-      permitted: toTokenPermissionsArray(this._inputs),
-      spender: this._orderContract,
-      nonce,
-      deadline: this._deadline,
-      outputs: toOutputObjectArray(this._outputs),
-    };
-
-    const signature = await client.signTypedData({
-      account: signerAccount,
-      domain,
-      types: PERMIT_BATCH_WITNESS_TRANSFER_FROM_TYPES,
-      primaryType: "PermitBatchWitnessTransferFrom",
-      message,
-    });
+    const signature = await signPermit2WitnessTransfer(
+      client,
+      signerAccount,
+      this._chainId,
+      {
+        permitted,
+        spender: this._orderContract,
+        nonce,
+        deadline: this._deadline,
+        outputs: this._outputs,
+      }
+    );
 
     const permit: PermitBatchTransferFrom = {
-      permitted: this._inputs,
+      permitted,
       nonce,
       deadline: this._deadline,
     };

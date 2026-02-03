@@ -10,6 +10,7 @@ export interface SignetSystemConstants {
   readonly hostTransactor: Address;
   readonly rollupPassage: Address;
   readonly txCacheUrl: string;
+  readonly slotTime: bigint;
 }
 
 export const MAINNET: SignetSystemConstants = {
@@ -22,6 +23,7 @@ export const MAINNET: SignetSystemConstants = {
   hostTransactor: "0xC4388A6f4917B8D392B19b43F9c46FEC1B890f45",
   rollupPassage: "0x0000000000007369676e65742d70617373616765",
   txCacheUrl: "https://transactions.signet.sh",
+  slotTime: 12n,
 } as const;
 
 export const PARMIGIANA: SignetSystemConstants = {
@@ -34,6 +36,7 @@ export const PARMIGIANA: SignetSystemConstants = {
   hostTransactor: "0x0B4fc18e78c585687E01c172a1087Ea687943db9",
   rollupPassage: "0x0000000000007369676E65742D70617373616765",
   txCacheUrl: "https://transactions.parmigiana.signet.sh",
+  slotTime: 12n,
 } as const;
 
 export function getOrdersContract(

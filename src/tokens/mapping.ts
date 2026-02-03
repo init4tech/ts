@@ -10,8 +10,7 @@ const BRIDGEABLE_TOKENS = new Set<TokenSymbol>([
 ]);
 
 export function mapTokenCrossChain(
-  symbol: TokenSymbol,
-  _direction: Direction
+  symbol: TokenSymbol
 ): TokenSymbol | undefined {
   return BRIDGEABLE_TOKENS.has(symbol) ? symbol : undefined;
 }
