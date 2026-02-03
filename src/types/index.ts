@@ -34,3 +34,5 @@ export {
   toTokenPermissions,
   toTokenPermissionsArray,
 } from "./conversions.js";
+
+export { serializeOrder, deserializeOrder } from "./serialization.js";

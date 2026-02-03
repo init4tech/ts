@@ -10,13 +10,20 @@ Generate TypeScript code for creating and signing Signet orders using @signet-sh
 
 **Types:**
 - `order` (default) - Create a swap order
-- `fill` - Create a fill for an existing order
+- `fill` - Create a fill for an existing order (see also `/signet-fill` for more fill examples)
 - `hash` - Compute order hash from existing data
 
 **Options (space-separated after type):**
 - `mainnet` or `testnet` - Target network (default: mainnet)
 - `multi-input` or `multi-output` - Multiple tokens
 - `raw` - Use raw SignedOrder type instead of builder
+
+## Background
+
+- **Orders** are created on the rollup chain, specifying inputs (tokens offered) and outputs (tokens wanted)
+- **Each output has a `chainId`** that specifies where the filler must deliver those tokens
+- **Fills** happen on the chain specified by the order's output `chainId` (can be host OR rollup)
+- Use `getOrdersContract(constants, chainId)` to determine the correct contract for a given chain
 
 ## Instructions
 

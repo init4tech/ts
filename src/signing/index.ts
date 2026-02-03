@@ -22,3 +22,11 @@ export {
 export { UnsignedOrder } from "./order.js";
 
 export { UnsignedFill } from "./fill.js";
+
+export { randomNonce } from "./nonce.js";
+
+export { getOutputWitness } from "./witness.js";
+
+export { encodeInitiatePermit2, encodeFillPermit2 } from "./encode.js";
+
+export { validateOrder, validateFill } from "./validate.js";

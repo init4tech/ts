@@ -20,8 +20,15 @@ import {
 } from "viem";
 import { foundry } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
-import { UnsignedOrder, orderHash, PARMIGIANA } from "../src/index.js";
+import {
+  UnsignedOrder,
+  UnsignedFill,
+  orderHash,
+  PARMIGIANA,
+  validateFill,
+} from "../src/index.js";
 import { rollupOrdersAbi } from "../src/abi/rollupOrders.js";
+import { hostOrdersAbi } from "../src/abi/hostOrders.js";
 import { PERMIT2_ADDRESS } from "../src/constants/permit2.js";
 import {
   setTokenBalance,
@@ -501,5 +508,274 @@ describe("Anvil E2E tests", () => {
 
     console.log("Witness hash:", witnessData.witnessHash);
     console.log("Witness type:", witnessData.witnessTypeString);
+  });
+});
+
+describe("Fill signing tests", () => {
+  const account = privateKeyToAccount(TEST_PRIVATE_KEY);
+
+  const walletClient = createWalletClient({
+    account,
+    chain: forkedParmigiana,
+    transport: http(ANVIL_URL),
+  });
+
+  it("creates and signs a fill with correct structure", async () => {
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
+    const nonce = BigInt(Date.now());
+
+    const outputs = [
+      {
+        token: TEST_TOKEN,
+        amount: parseEther("100"),
+        recipient: account.address,
+        chainId: Number(PARMIGIANA.rollupChainId),
+      },
+    ];
+
+    const signedFill = await UnsignedFill.new()
+      .withOutputs(outputs)
+      .withDeadline(deadline)
+      .withNonce(nonce)
+      .withChain({
+        chainId: PARMIGIANA.hostChainId,
+        orderContract: PARMIGIANA.hostOrders,
+      })
+      .sign(walletClient);
+
+    // Verify structure matches order pattern
+    expect(signedFill.permit.owner).toBe(account.address);
+    expect(signedFill.permit.permit.deadline).toBe(deadline);
+    expect(signedFill.permit.permit.nonce).toBe(nonce);
+    expect(signedFill.permit.signature).toMatch(/^0x[a-fA-F0-9]+$/);
+
+    // Verify outputs match permitted tokens
+    expect(signedFill.outputs.length).toBe(1);
+    expect(signedFill.permit.permit.permitted.length).toBe(1);
+    expect(signedFill.permit.permit.permitted[0].token).toBe(TEST_TOKEN);
+    expect(signedFill.permit.permit.permitted[0].amount).toBe(
+      parseEther("100")
+    );
+
+    // Verify fill passes validation
+    validateFill(signedFill);
+  });
+
+  it("creates fill with multiple outputs", async () => {
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
+    const nonce = BigInt(Date.now());
+
+    const outputs = [
+      {
+        token: TEST_TOKEN,
+        amount: parseEther("50"),
+        recipient: account.address,
+        chainId: Number(PARMIGIANA.rollupChainId),
+      },
+      {
+        token: TEST_TOKEN,
+        amount: parseEther("25"),
+        recipient: "0x0000000000000000000000000000000000000001" as Address,
+        chainId: Number(PARMIGIANA.rollupChainId),
+      },
+    ];
+
+    const signedFill = await UnsignedFill.new()
+      .withOutputs(outputs)
+      .withDeadline(deadline)
+      .withNonce(nonce)
+      .withChain({
+        chainId: PARMIGIANA.hostChainId,
+        orderContract: PARMIGIANA.hostOrders,
+      })
+      .sign(walletClient);
+
+    expect(signedFill.outputs.length).toBe(2);
+    expect(signedFill.permit.permit.permitted.length).toBe(2);
+
+    // Verify each output maps to correct permitted token
+    expect(signedFill.permit.permit.permitted[0].amount).toBe(parseEther("50"));
+    expect(signedFill.permit.permit.permitted[1].amount).toBe(parseEther("25"));
+
+    validateFill(signedFill);
+  });
+
+  it("uses slotTime from constants for default deadline", async () => {
+    const nonce = BigInt(Date.now());
+    const beforeSign = BigInt(Math.floor(Date.now() / 1000));
+
+    const signedFill = await UnsignedFill.new()
+      .withOutputs([
+        {
+          token: TEST_TOKEN,
+          amount: parseEther("10"),
+          recipient: account.address,
+          chainId: Number(PARMIGIANA.rollupChainId),
+        },
+      ])
+      .withNonce(nonce)
+      .withChain({
+        chainId: PARMIGIANA.hostChainId,
+        orderContract: PARMIGIANA.hostOrders,
+      })
+      .withConstants(PARMIGIANA)
+      .sign(walletClient);
+
+    const afterSign = BigInt(Math.floor(Date.now() / 1000));
+
+    // Deadline should be approximately now + slotTime (12s)
+    expect(signedFill.permit.permit.deadline).toBeGreaterThanOrEqual(
+      beforeSign + PARMIGIANA.slotTime
+    );
+    expect(signedFill.permit.permit.deadline).toBeLessThanOrEqual(
+      afterSign + PARMIGIANA.slotTime + 1n
+    );
+  });
+
+  it("generates random nonce when not specified", async () => {
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
+
+    const fill1 = await UnsignedFill.new()
+      .withOutputs([
+        {
+          token: TEST_TOKEN,
+          amount: parseEther("10"),
+          recipient: account.address,
+          chainId: Number(PARMIGIANA.rollupChainId),
+        },
+      ])
+      .withDeadline(deadline)
+      .withChain({
+        chainId: PARMIGIANA.hostChainId,
+        orderContract: PARMIGIANA.hostOrders,
+      })
+      .sign(walletClient);
+
+    const fill2 = await UnsignedFill.new()
+      .withOutputs([
+        {
+          token: TEST_TOKEN,
+          amount: parseEther("10"),
+          recipient: account.address,
+          chainId: Number(PARMIGIANA.rollupChainId),
+        },
+      ])
+      .withDeadline(deadline)
+      .withChain({
+        chainId: PARMIGIANA.hostChainId,
+        orderContract: PARMIGIANA.hostOrders,
+      })
+      .sign(walletClient);
+
+    // Nonces should be different (random)
+    expect(fill1.permit.permit.nonce).not.toBe(fill2.permit.permit.nonce);
+  });
+
+  it("produces different signatures for different outputs", async () => {
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
+    const nonce = BigInt(Date.now());
+
+    const fill1 = await UnsignedFill.new()
+      .withOutputs([
+        {
+          token: TEST_TOKEN,
+          amount: parseEther("100"),
+          recipient: account.address,
+          chainId: Number(PARMIGIANA.rollupChainId),
+        },
+      ])
+      .withDeadline(deadline)
+      .withNonce(nonce)
+      .withChain({
+        chainId: PARMIGIANA.hostChainId,
+        orderContract: PARMIGIANA.hostOrders,
+      })
+      .sign(walletClient);
+
+    const fill2 = await UnsignedFill.new()
+      .withOutputs([
+        {
+          token: TEST_TOKEN,
+          amount: parseEther("200"), // Different amount
+          recipient: account.address,
+          chainId: Number(PARMIGIANA.rollupChainId),
+        },
+      ])
+      .withDeadline(deadline)
+      .withNonce(nonce)
+      .withChain({
+        chainId: PARMIGIANA.hostChainId,
+        orderContract: PARMIGIANA.hostOrders,
+      })
+      .sign(walletClient);
+
+    // Signatures should differ due to different outputs in witness
+    expect(fill1.permit.signature).not.toBe(fill2.permit.signature);
+  });
+
+  it("encodes fillPermit2 calldata correctly", async () => {
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
+    const nonce = BigInt(Date.now());
+
+    const signedFill = await UnsignedFill.new()
+      .withOutputs([
+        {
+          token: TEST_TOKEN,
+          amount: parseEther("100"),
+          recipient: account.address,
+          chainId: Number(PARMIGIANA.rollupChainId),
+        },
+      ])
+      .withDeadline(deadline)
+      .withNonce(nonce)
+      .withChain({
+        chainId: PARMIGIANA.hostChainId,
+        orderContract: PARMIGIANA.hostOrders,
+      })
+      .sign(walletClient);
+
+    // Encode the fillPermit2 call
+    const callData = encodeFunctionData({
+      abi: hostOrdersAbi,
+      functionName: "fillPermit2",
+      args: [
+        signedFill.outputs.map((o) => ({
+          token: o.token,
+          amount: o.amount,
+          recipient: o.recipient,
+          chainId: o.chainId,
+        })),
+        {
+          permit: {
+            permitted: signedFill.permit.permit.permitted.map((p) => ({
+              token: p.token,
+              amount: p.amount,
+            })),
+            nonce: signedFill.permit.permit.nonce,
+            deadline: signedFill.permit.permit.deadline,
+          },
+          owner: signedFill.permit.owner,
+          signature: signedFill.permit.signature,
+        },
+      ],
+    });
+
+    expect(callData).toMatch(/^0x[a-fA-F0-9]+$/);
+    console.log("fillPermit2 calldata length:", callData.length, "bytes");
+  });
+
+  it("throws when chain not configured", async () => {
+    await expect(
+      UnsignedFill.new()
+        .withOutputs([
+          {
+            token: TEST_TOKEN,
+            amount: parseEther("100"),
+            recipient: account.address,
+            chainId: Number(PARMIGIANA.rollupChainId),
+          },
+        ])
+        .sign(walletClient)
+    ).rejects.toThrow("Chain not configured");
   });
 });

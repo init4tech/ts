@@ -27,6 +27,14 @@
     "./abi": {
       "import": "./dist/abi/index.js",
       "types": "./dist/abi/index.d.ts"
+    },
+    "./tokens": {
+      "import": "./dist/tokens/index.js",
+      "types": "./dist/tokens/index.d.ts"
+    },
+    "./client": {
+      "import": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts"
     }
   },
   "files": [
@@ -37,6 +45,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:anvil": "vitest run --config vitest.anvil.config.ts",
+    "test:live": "vitest run --config vitest.live.config.ts",
     "lint": "eslint src tests",
     "lint:fix": "eslint src tests --fix",
     "format": "prettier --write .",
@@ -59,7 +68,7 @@
   },
   "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "license": "MIT OR Apache-2.0",
   "repository": {

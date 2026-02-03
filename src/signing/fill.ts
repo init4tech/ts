@@ -1,21 +1,16 @@
-/**
- * Fill signing functionality.
- */
 import type { Account, Address, WalletClient } from "viem";
-import { PERMIT_BATCH_WITNESS_TRANSFER_FROM_TYPES } from "../types/permit2.js";
+import type { SignetSystemConstants } from "../constants/chains.js";
+import { toTokenPermissionsArray } from "../types/conversions.js";
+import type { SignedFill } from "../types/fill.js";
+import type { ChainConfig } from "../types/order.js";
 import type {
   Output,
   Permit2Batch,
   PermitBatchTransferFrom,
-  TokenPermissions,
 } from "../types/primitives.js";
-import {
-  toOutputObjectArray,
-  toTokenPermissionsArray,
-} from "../types/conversions.js";
-import type { SignedFill } from "../types/fill.js";
-import type { ChainConfig } from "../types/order.js";
-import { permit2Domain } from "./domain.js";
+import { nowSeconds } from "../utils/time.js";
+import { randomNonce } from "./nonce.js";
+import { resolveAccount, signPermit2WitnessTransfer } from "./permit2.js";
 
 /**
  * Builder for constructing unsigned fills.
@@ -26,6 +21,7 @@ export class UnsignedFill {
   private _nonce: bigint | undefined;
   private _chainId: bigint | undefined;
   private _orderContract: Address | undefined;
+  private _constants: SignetSystemConstants | undefined;
 
   /**
    * Create a new unsigned fill builder.
@@ -80,6 +76,17 @@ export class UnsignedFill {
   }
 
   /**
+   * Set the system constants for deadline calculation.
+   *
+   * @param constants - Signet system constants
+   * @returns This builder for chaining
+   */
+  withConstants(constants: SignetSystemConstants): this {
+    this._constants = constants;
+    return this;
+  }
+
+  /**
    * Get the current outputs.
    */
   get outputs(): readonly Output[] {
@@ -98,54 +105,30 @@ export class UnsignedFill {
     client: WalletClient,
     account?: Account | Address
   ): Promise<SignedFill> {
-    if (this._chainId === undefined) {
-      throw new Error("Chain ID not set. Call withChain() first.");
-    }
-    if (this._orderContract === undefined) {
-      throw new Error("Order contract not set. Call withChain() first.");
+    if (this._chainId === undefined || this._orderContract === undefined) {
+      throw new Error("Chain not configured. Call withChain() first.");
     }
 
-    // Use provided nonce or generate from timestamp
-    const nonce = this._nonce ?? BigInt(Math.floor(Date.now() * 1000)); // microseconds
-
-    // Use provided deadline or 12 seconds from now
+    const nonce = this._nonce ?? randomNonce();
     const deadline =
-      this._deadline ?? BigInt(Math.floor(Date.now() / 1000) + 12);
+      this._deadline ?? nowSeconds() + (this._constants?.slotTime ?? 12n);
+    const { signerAccount, ownerAddress } = resolveAccount(client, account);
 
-    // Resolve account
-    const signerAccount = account ?? client.account;
-    if (!signerAccount) {
-      throw new Error("No account provided and client has no default account.");
-    }
-    const ownerAddress: Address =
-      typeof signerAccount === "string" ? signerAccount : signerAccount.address;
+    const permitted = toTokenPermissionsArray(this._outputs);
 
-    // Build permitted tokens from outputs
-    const permitted: TokenPermissions[] = toTokenPermissionsArray(
-      this._outputs
+    const signature = await signPermit2WitnessTransfer(
+      client,
+      signerAccount,
+      this._chainId,
+      {
+        permitted,
+        spender: this._orderContract,
+        nonce,
+        deadline,
+        outputs: this._outputs,
+      }
     );
 
-    // Build the EIP-712 message
-    const domain = permit2Domain(this._chainId);
-
-    const message = {
-      permitted: toTokenPermissionsArray(permitted),
-      spender: this._orderContract,
-      nonce,
-      deadline,
-      outputs: toOutputObjectArray(this._outputs),
-    };
-
-    // Sign using EIP-712 typed data
-    const signature = await client.signTypedData({
-      account: signerAccount,
-      domain,
-      types: PERMIT_BATCH_WITNESS_TRANSFER_FROM_TYPES,
-      primaryType: "PermitBatchWitnessTransferFrom",
-      message,
-    });
-
-    // Construct the permit
     const permit: PermitBatchTransferFrom = {
       permitted,
       nonce,

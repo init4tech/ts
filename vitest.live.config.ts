@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    exclude: ["tests/anvil.test.ts", "tests/live.test.ts", "node_modules/**"],
+    include: ["tests/live.test.ts"],
+    testTimeout: 30000,
   },
 });
