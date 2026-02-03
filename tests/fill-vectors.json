@@ -1,0 +1,162 @@
+[
+  {
+    "name": "minimal_fill",
+    "chain_id": 1,
+    "order_contract": "0x0000000000000000000000000000000000000000",
+    "permitted": [
+      {
+        "token": "0x0000000000000000000000000000000000000000",
+        "amount": "0x0"
+      }
+    ],
+    "nonce": "0x0",
+    "deadline": "0x0",
+    "outputs": [
+      {
+        "token": "0x0000000000000000000000000000000000000000",
+        "amount": "0x0",
+        "recipient": "0x0000000000000000000000000000000000000000",
+        "chain_id": 1
+      }
+    ],
+    "expected_domain_separator": "0x866a5aba21966af95d6c7ab78eb2b2fc913915c28be3b9aa07cc04ff903e3f28",
+    "expected_struct_hash": "0xd39590546fe9197d6c8811ad61cb61252dbbbcc0dcd8e88ae86f05d65ef955ec",
+    "expected_signing_hash": "0x336c8f9f25cba888cd3830f3357ac234a2a0b132213330b25a9ce2fba78934c9"
+  },
+  {
+    "name": "mainnet_eth_fill",
+    "chain_id": 1,
+    "order_contract": "0x96f44ddc3bc8892371305531f1a6d8ca2331fe6c",
+    "permitted": [
+      {
+        "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amount": "0xde0b6b3a7640000"
+      }
+    ],
+    "nonce": "0x3e8",
+    "deadline": "0x6553f100",
+    "outputs": [
+      {
+        "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amount": "0xde0b6b3a7640000",
+        "recipient": "0xabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd",
+        "chain_id": 1
+      }
+    ],
+    "expected_domain_separator": "0x866a5aba21966af95d6c7ab78eb2b2fc913915c28be3b9aa07cc04ff903e3f28",
+    "expected_struct_hash": "0x87745121536db52d5c969315257caae056de32a33ffe590c0044df9cd187f959",
+    "expected_signing_hash": "0xabbe011787684f3eb5e2360d8f6c22995cbf7a81cf3f6000d6a550513a0e872c"
+  },
+  {
+    "name": "multi_token_fill",
+    "chain_id": 1,
+    "order_contract": "0x96f44ddc3bc8892371305531f1a6d8ca2331fe6c",
+    "permitted": [
+      {
+        "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amount": "0x6f05b59d3b20000"
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "0x3b9aca00"
+      }
+    ],
+    "nonce": "0x2a",
+    "deadline": "0x684ee180",
+    "outputs": [
+      {
+        "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amount": "0x6f05b59d3b20000",
+        "recipient": "0x7777777777777777777777777777777777777777",
+        "chain_id": 1
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "0x3b9aca00",
+        "recipient": "0x7777777777777777777777777777777777777777",
+        "chain_id": 1
+      }
+    ],
+    "expected_domain_separator": "0x866a5aba21966af95d6c7ab78eb2b2fc913915c28be3b9aa07cc04ff903e3f28",
+    "expected_struct_hash": "0xc67d501df940cb73985d19a8466acfc28af14f61c8b7cfa3ebf2153a3ce8e0b6",
+    "expected_signing_hash": "0x341d2147b9a13923c0828e5521b2bf1153af3e14c302d4ae942f91ed9592719e"
+  },
+  {
+    "name": "cross_chain_fill",
+    "chain_id": 1,
+    "order_contract": "0x96f44ddc3bc8892371305531f1a6d8ca2331fe6c",
+    "permitted": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "0x3b9aca00"
+      }
+    ],
+    "nonce": "0x15b38",
+    "deadline": "0x6b49d200",
+    "outputs": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "0x1dcd6500",
+        "recipient": "0x3333333333333333333333333333333333333333",
+        "chain_id": 1
+      },
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "0x1dcd6500",
+        "recipient": "0x4444444444444444444444444444444444444444",
+        "chain_id": 519
+      }
+    ],
+    "expected_domain_separator": "0x866a5aba21966af95d6c7ab78eb2b2fc913915c28be3b9aa07cc04ff903e3f28",
+    "expected_struct_hash": "0x1c1a83f475a878b550c69164d767c9e7c8571a5920388632576eeb8909971aa3",
+    "expected_signing_hash": "0xc1e8ba29e37c94945ae5a4895675bc1e48a2f2c735d319694ea386c1904db617"
+  },
+  {
+    "name": "large_amount_fill",
+    "chain_id": 519,
+    "order_contract": "0x000000000000007369676e65742d6f7264657273",
+    "permitted": [
+      {
+        "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amount": "0xa968163f0a57b400000"
+      }
+    ],
+    "nonce": "0xffffffffffffffff",
+    "deadline": "0xffffffffffffffff",
+    "outputs": [
+      {
+        "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amount": "0xa968163f0a57b400000",
+        "recipient": "0x9999999999999999999999999999999999999999",
+        "chain_id": 1
+      }
+    ],
+    "expected_domain_separator": "0xb9763ec6fa56d573bb57683efe8980ae88b28d02923686476e9f03012cf86930",
+    "expected_struct_hash": "0xc0e7463e5fa90102df04147d21a31c90d431201cd392f44fdf474afbd6ca07cb",
+    "expected_signing_hash": "0x9f40af7da8b78654d64c937c0e15c9c05a0cfa81756fba5b9ae7f4a22d69a116"
+  },
+  {
+    "name": "signet_rollup_fill",
+    "chain_id": 519,
+    "order_contract": "0x000000000000007369676e65742d6f7264657273",
+    "permitted": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "0x2540be400"
+      }
+    ],
+    "nonce": "0x75bcd15",
+    "deadline": "0x6e44c280",
+    "outputs": [
+      {
+        "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amount": "0x2540be400",
+        "recipient": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+        "chain_id": 519
+      }
+    ],
+    "expected_domain_separator": "0xb9763ec6fa56d573bb57683efe8980ae88b28d02923686476e9f03012cf86930",
+    "expected_struct_hash": "0xc76a23c42d6bf7d5c59c2f04f36ce9d781e103710a427caef722fc0aee4abeab",
+    "expected_signing_hash": "0xff671db7bf069cf756bafadadf2905608fb35d89dd4b8d0a65ea5fe66bcca882"
+  }
+]
