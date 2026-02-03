@@ -11,7 +11,7 @@ export const TOKENS = {
   USDC: { symbol: "USDC", name: "USD Coin", decimals: 6 },
   USDT: { symbol: "USDT", name: "Tether USD", decimals: 6 },
   WUSD: { symbol: "WUSD", name: "Wrapped USD", decimals: 6 },
-  USD: { symbol: "USD", name: "USD", decimals: 6 },
+  USD: { symbol: "USD", name: "USD", decimals: 18 },
 } as const satisfies Record<string, TokenMeta>;
 
 export type TokenSymbol = keyof typeof TOKENS;

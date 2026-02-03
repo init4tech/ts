@@ -35,6 +35,7 @@ const PARMIGIANA_TOKENS: NetworkTokenAddresses = {
   },
 };
 
+/** Maps host chain ID to token addresses for that network. */
 const TOKEN_REGISTRY = new Map<bigint, NetworkTokenAddresses>([
   [1n, MAINNET_TOKENS],
   [3151908n, PARMIGIANA_TOKENS],
