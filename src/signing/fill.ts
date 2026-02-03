@@ -1,6 +1,3 @@
-/**
- * Fill signing functionality.
- */
 import type { Account, Address, WalletClient } from "viem";
 import { PERMIT_BATCH_WITNESS_TRANSFER_FROM_TYPES } from "../types/permit2.js";
 import type {
@@ -99,21 +96,15 @@ export class UnsignedFill {
     client: WalletClient,
     account?: Account | Address
   ): Promise<SignedFill> {
-    if (this._chainId === undefined) {
-      throw new Error("Chain ID not set. Call withChain() first.");
-    }
-    if (this._orderContract === undefined) {
-      throw new Error("Order contract not set. Call withChain() first.");
+    if (this._chainId === undefined || this._orderContract === undefined) {
+      throw new Error("Chain not configured. Call withChain() first.");
     }
 
-    // Use provided nonce or generate from timestamp
     const nonce = this._nonce ?? randomNonce();
 
-    // Use provided deadline or 12 seconds from now
     const deadline =
       this._deadline ?? BigInt(Math.floor(Date.now() / 1000) + 12);
 
-    // Resolve account
     const signerAccount = account ?? client.account;
     if (!signerAccount) {
       throw new Error("No account provided and client has no default account.");
@@ -121,12 +112,10 @@ export class UnsignedFill {
     const ownerAddress: Address =
       typeof signerAccount === "string" ? signerAccount : signerAccount.address;
 
-    // Build permitted tokens from outputs
     const permitted: TokenPermissions[] = toTokenPermissionsArray(
       this._outputs
     );
 
-    // Build the EIP-712 message
     const domain = permit2Domain(this._chainId);
 
     const message = {
@@ -137,7 +126,6 @@ export class UnsignedFill {
       outputs: toOutputObjectArray(this._outputs),
     };
 
-    // Sign using EIP-712 typed data
     const signature = await client.signTypedData({
       account: signerAccount,
       domain,
@@ -146,7 +134,6 @@ export class UnsignedFill {
       message,
     });
 
-    // Construct the permit
     const permit: PermitBatchTransferFrom = {
       permitted,
       nonce,

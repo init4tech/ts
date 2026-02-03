@@ -1,4 +1,4 @@
-import type { Address } from "viem";
+import { isAddressEqual, type Address } from "viem";
 import type { SignetSystemConstants } from "../constants/chains.js";
 import type { TokenSymbol } from "./constants.js";
 
@@ -75,9 +75,8 @@ export function resolveTokenSymbol(
   if (!network) return undefined;
   const side = getSide(network, chainId, constants);
   if (!side) return undefined;
-  const lower = address.toLowerCase();
   for (const [symbol, addr] of Object.entries(side)) {
-    if (addr.toLowerCase() === lower) return symbol as TokenSymbol;
+    if (isAddressEqual(addr, address)) return symbol as TokenSymbol;
   }
   return undefined;
 }

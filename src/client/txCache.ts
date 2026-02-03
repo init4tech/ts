@@ -14,9 +14,9 @@ export function createTxCacheClient(baseUrl: string): TxCacheClient {
       body: JSON.stringify(body),
     });
     if (!response.ok) {
-      const body = await response.text().catch(() => "");
+      const errorBody = await response.text().catch(() => "");
       throw new Error(
-        `Transaction cache error ${String(response.status)}: ${body || response.statusText}`
+        `Transaction cache error ${String(response.status)}: ${errorBody || response.statusText}`
       );
     }
     return (await response.json()) as { id: string };

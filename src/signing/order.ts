@@ -1,6 +1,3 @@
-/**
- * Order signing functionality.
- */
 import type { Account, Address, WalletClient } from "viem";
 import { PERMIT_BATCH_WITNESS_TRANSFER_FROM_TYPES } from "../types/permit2.js";
 import type {
@@ -54,9 +51,9 @@ export class UnsignedOrder {
    * @returns This builder for chaining
    */
   withInputs(inputs: readonly { token: Address; amount: bigint }[]): this {
-    for (const input of inputs) {
-      this._inputs.push({ token: input.token, amount: input.amount });
-    }
+    this._inputs.push(
+      ...inputs.map(({ token, amount }) => ({ token, amount }))
+    );
     return this;
   }
 
@@ -150,17 +147,12 @@ export class UnsignedOrder {
     client: WalletClient,
     account?: Account | Address
   ): Promise<SignedOrder> {
-    if (this._chainId === undefined) {
-      throw new Error("Chain ID not set. Call withChain() first.");
-    }
-    if (this._orderContract === undefined) {
-      throw new Error("Order contract not set. Call withChain() first.");
+    if (this._chainId === undefined || this._orderContract === undefined) {
+      throw new Error("Chain not configured. Call withChain() first.");
     }
 
-    // Use provided nonce or generate from timestamp
     const nonce = this._nonce ?? randomNonce();
 
-    // Resolve account
     const signerAccount = account ?? client.account;
     if (!signerAccount) {
       throw new Error("No account provided and client has no default account.");
@@ -168,7 +160,6 @@ export class UnsignedOrder {
     const ownerAddress: Address =
       typeof signerAccount === "string" ? signerAccount : signerAccount.address;
 
-    // Build the EIP-712 message
     const domain = permit2Domain(this._chainId);
 
     const message = {
@@ -179,7 +170,6 @@ export class UnsignedOrder {
       outputs: toOutputObjectArray(this._outputs),
     };
 
-    // Sign using EIP-712 typed data
     const signature = await client.signTypedData({
       account: signerAccount,
       domain,
@@ -188,7 +178,6 @@ export class UnsignedOrder {
       message,
     });
 
-    // Construct the permit
     const permit: PermitBatchTransferFrom = {
       permitted: this._inputs,
       nonce,
