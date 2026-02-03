@@ -3,7 +3,7 @@ import { defineChain } from "viem";
 export const signetRollup = defineChain({
   id: 519,
   name: "Signet",
-  nativeCurrency: { name: "USD", symbol: "USD", decimals: 6 },
+  nativeCurrency: { name: "USD", symbol: "USD", decimals: 18 },
   rpcUrls: {
     default: { http: ["https://rpc.signet.sh"] },
   },
@@ -11,7 +11,7 @@ export const signetRollup = defineChain({
 
 export const parmigianaRollup = defineChain({
   id: 88888,
-  name: "Parmigiana Rollup",
+  name: "Parmigiana",
   nativeCurrency: { name: "USD", symbol: "USD", decimals: 18 },
   rpcUrls: {
     default: { http: ["https://rpc.parmigiana.signet.sh"] },
