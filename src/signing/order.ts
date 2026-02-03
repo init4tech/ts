@@ -15,6 +15,7 @@ import {
 } from "../types/conversions.js";
 import type { ChainConfig, SignedOrder } from "../types/order.js";
 import { permit2Domain } from "./domain.js";
+import { randomNonce } from "./nonce.js";
 
 /**
  * Builder for constructing unsigned orders.
@@ -157,7 +158,7 @@ export class UnsignedOrder {
     }
 
     // Use provided nonce or generate from timestamp
-    const nonce = this._nonce ?? BigInt(Math.floor(Date.now() * 1000)); // microseconds
+    const nonce = this._nonce ?? randomNonce();
 
     // Resolve account
     const signerAccount = account ?? client.account;

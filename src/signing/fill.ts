@@ -16,6 +16,7 @@ import {
 import type { SignedFill } from "../types/fill.js";
 import type { ChainConfig } from "../types/order.js";
 import { permit2Domain } from "./domain.js";
+import { randomNonce } from "./nonce.js";
 
 /**
  * Builder for constructing unsigned fills.
@@ -106,7 +107,7 @@ export class UnsignedFill {
     }
 
     // Use provided nonce or generate from timestamp
-    const nonce = this._nonce ?? BigInt(Math.floor(Date.now() * 1000)); // microseconds
+    const nonce = this._nonce ?? randomNonce();
 
     // Use provided deadline or 12 seconds from now
     const deadline =
@@ -129,7 +130,7 @@ export class UnsignedFill {
     const domain = permit2Domain(this._chainId);
 
     const message = {
-      permitted: toTokenPermissionsArray(permitted),
+      permitted,
       spender: this._orderContract,
       nonce,
       deadline,

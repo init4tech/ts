@@ -27,6 +27,14 @@
     "./abi": {
       "import": "./dist/abi/index.js",
       "types": "./dist/abi/index.d.ts"
+    },
+    "./tokens": {
+      "import": "./dist/tokens/index.js",
+      "types": "./dist/tokens/index.d.ts"
+    },
+    "./client": {
+      "import": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts"
     }
   },
   "files": [

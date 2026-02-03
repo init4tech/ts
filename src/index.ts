@@ -45,6 +45,8 @@ export type {
 export {
   OUTPUT_WITNESS_TYPE_STRING,
   PERMIT_BATCH_WITNESS_TRANSFER_FROM_TYPES,
+  serializeOrder,
+  deserializeOrder,
 } from "./types/index.js";
 
 // Constants
@@ -56,6 +58,9 @@ export {
   PARMIGIANA,
   PERMIT2_ADDRESS,
   PERMIT2_NAME,
+  parmigianaHost,
+  parmigianaRollup,
+  signetRollup,
 } from "./constants/index.js";
 
 // Signing
@@ -65,15 +70,42 @@ export {
   computeOrderHash,
   eip712Components,
   eip712SigningHash,
+  encodeFillPermit2,
+  encodeInitiatePermit2,
+  getOutputWitness,
   normalizeSignature,
   orderHash,
   orderHashPreImage,
   permit2Domain,
   permit2DomainSeparator,
   permitBatchWitnessStructHash,
+  randomNonce,
   UnsignedFill,
   UnsignedOrder,
+  validateFill,
+  validateOrder,
 } from "./signing/index.js";
 
 // ABI
-export { rollupOrdersAbi } from "./abi/index.js";
+export {
+  bundleHelperAbi,
+  hostOrdersAbi,
+  passageAbi,
+  rollupOrdersAbi,
+  rollupPassageAbi,
+  transactorAbi,
+  wethAbi,
+  zenithAbi,
+} from "./abi/index.js";
+
+// Tokens
+export type { TokenMeta, TokenSymbol } from "./tokens/index.js";
+
+export {
+  getAvailableTokens,
+  getTokenAddress,
+  mapTokenCrossChain,
+  needsWethWrap,
+  resolveTokenSymbol,
+  TOKENS,
+} from "./tokens/index.js";
