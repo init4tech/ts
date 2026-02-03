@@ -1,0 +1,165 @@
+{
+  "ethBundles": [
+    {
+      "name": "minimal",
+      "bundle": {
+        "blockNumber": "0xbc614e",
+        "txs": ["0x02f8746573745f74785f31"]
+      }
+    },
+    {
+      "name": "with_timestamps",
+      "bundle": {
+        "blockNumber": "0xbc614e",
+        "maxTimestamp": 1700003600,
+        "minTimestamp": 1700000000,
+        "txs": ["0x02f8746573745f74785f31"]
+      }
+    },
+    {
+      "name": "with_reverting_hashes",
+      "bundle": {
+        "blockNumber": "0xbc614e",
+        "revertingTxHashes": [
+          "0xabababababababababababababababababababababababababababababababab",
+          "0xcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+        ],
+        "txs": ["0x02f8746573745f74785f31", "0x02f8746573745f74785f32"]
+      }
+    },
+    {
+      "name": "with_host_txs",
+      "bundle": {
+        "blockNumber": "0xbc614e",
+        "hostTxs": ["0x02f8686f73745f74785f31", "0x02f8686f73745f74785f32"],
+        "txs": ["0x02f8726f6c6c75705f7478"]
+      }
+    },
+    {
+      "name": "full_bundle",
+      "bundle": {
+        "blockNumber": "0xbc614e",
+        "droppingTxHashes": [
+          "0x1111111111111111111111111111111111111111111111111111111111111111"
+        ],
+        "hostTxs": ["0x02f8686f73745f7478"],
+        "maxTimestamp": 1700003600,
+        "minTimestamp": 1700000000,
+        "refundPercent": 90,
+        "refundRecipient": "0x2222222222222222222222222222222222222222",
+        "refundTxHashes": [
+          "0x3333333333333333333333333333333333333333333333333333333333333333"
+        ],
+        "revertingTxHashes": [
+          "0xefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef"
+        ],
+        "txs": ["0x02f874785f31", "0x02f874785f32"]
+      }
+    },
+    {
+      "name": "replacement_bundle",
+      "bundle": {
+        "blockNumber": "0xbc614e",
+        "replacementUuid": "550e8400-e29b-41d4-a716-446655440000",
+        "txs": ["0x02f87265706c6163656d656e745f7478"]
+      }
+    }
+  ],
+  "callBundles": [
+    {
+      "name": "minimal",
+      "bundle": {
+        "blockNumber": "0xbc614e",
+        "stateBlockNumber": "0xbc614d",
+        "txs": ["0x02f8746573745f74785f31"]
+      }
+    },
+    {
+      "name": "with_overrides",
+      "bundle": {
+        "baseFee": "0x3b9aca00",
+        "blockNumber": "0xbc614e",
+        "gasLimit": "0x1c9c380",
+        "stateBlockNumber": "0xbc614d",
+        "timestamp": "0x6553f100",
+        "txs": ["0x02f8746573745f74785f31"]
+      }
+    },
+    {
+      "name": "with_coinbase",
+      "bundle": {
+        "blockNumber": "0xbc614e",
+        "coinbase": "0x4242424242424242424242424242424242424242",
+        "stateBlockNumber": "latest",
+        "timeout": "0x5",
+        "txs": ["0x02f8746573745f74785f31"]
+      }
+    }
+  ],
+  "callBundleResponses": [
+    {
+      "name": "minimal_response",
+      "response": {
+        "bundleGasPrice": "1000000000",
+        "bundleHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "coinbaseDiff": "100000000000000",
+        "ethSentToCoinbase": "50000000000000",
+        "fills": {
+          "fills": {}
+        },
+        "gasFees": "50000000000000",
+        "orders": {
+          "inputs": {},
+          "outputs": {}
+        },
+        "results": [
+          {
+            "coinbaseDiff": "100000000000000",
+            "ethSentToCoinbase": "50000000000000",
+            "fromAddress": "0x1111111111111111111111111111111111111111",
+            "gasFees": "50000000000000",
+            "gasPrice": "1000000000",
+            "gasUsed": 21000,
+            "toAddress": "0x2222222222222222222222222222222222222222",
+            "txHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "value": "0x726573756c745f64617461"
+          }
+        ],
+        "stateBlockNumber": 12345677,
+        "totalGasUsed": 21000
+      }
+    },
+    {
+      "name": "reverted_response",
+      "response": {
+        "bundleGasPrice": "1000000000",
+        "bundleHash": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "coinbaseDiff": "0",
+        "ethSentToCoinbase": "0",
+        "fills": {
+          "fills": {}
+        },
+        "gasFees": "21000000000000",
+        "orders": {
+          "inputs": {},
+          "outputs": {}
+        },
+        "results": [
+          {
+            "coinbaseDiff": "0",
+            "ethSentToCoinbase": "0",
+            "fromAddress": "0x3333333333333333333333333333333333333333",
+            "gasFees": "21000000000000",
+            "gasPrice": "1000000000",
+            "gasUsed": 21000,
+            "revert": "0x657865637574696f6e207265766572746564",
+            "toAddress": "0x4444444444444444444444444444444444444444",
+            "txHash": "0xdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          }
+        ],
+        "stateBlockNumber": 12345677,
+        "totalGasUsed": 21000
+      }
+    }
+  ]
+}

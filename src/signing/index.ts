@@ -23,10 +23,20 @@ export { UnsignedOrder } from "./order.js";
 
 export { UnsignedFill } from "./fill.js";
 
-export { randomNonce } from "./nonce.js";
+export { isNonceUsed, nonceFromSeed, randomNonce } from "./nonce.js";
 
 export { getOutputWitness } from "./witness.js";
 
-export { encodeInitiatePermit2, encodeFillPermit2 } from "./encode.js";
+export { encodeFillPermit2, encodeInitiatePermit2 } from "./encode.js";
 
-export { validateOrder, validateFill } from "./validate.js";
+export { validateFill, validateOrder } from "./validate.js";
+
+export type {
+  FeasibilityIssue,
+  FeasibilityIssueType,
+  FeasibilityResult,
+} from "./feasibility.js";
+
+export { checkOrderFeasibility, hasPermit2Approval } from "./feasibility.js";
+
+export { SignetCallBundleBuilder, SignetEthBundleBuilder } from "./bundle.js";

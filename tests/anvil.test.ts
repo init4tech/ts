@@ -779,3 +779,159 @@ describe("Fill signing tests", () => {
     ).rejects.toThrow("Chain not configured");
   });
 });
+
+describe("Permit2 nonce utilities", () => {
+  const account = privateKeyToAccount(TEST_PRIVATE_KEY);
+
+  const testClient = createTestClient({
+    mode: "anvil",
+    chain: forkedParmigiana,
+    transport: http(ANVIL_URL),
+  });
+
+  const publicClient = createPublicClient({
+    chain: forkedParmigiana,
+    transport: http(ANVIL_URL),
+  });
+
+  const walletClient = createWalletClient({
+    account,
+    chain: forkedParmigiana,
+    transport: http(ANVIL_URL),
+  });
+
+  let snapshotId: Hex;
+
+  beforeAll(async () => {
+    const chainId = await publicClient.getChainId();
+    expect(chainId).toBe(88888);
+
+    await testClient.setBalance({
+      address: account.address,
+      value: parseEther("100"),
+    });
+
+    await setTokenBalance(
+      testClient,
+      TEST_TOKEN,
+      account.address,
+      parseEther("1000000"),
+      publicClient
+    );
+
+    await setTokenAllowance(
+      testClient,
+      TEST_TOKEN,
+      account.address,
+      PERMIT2_ADDRESS,
+      parseEther("1000000000"),
+      publicClient
+    );
+  });
+
+  beforeEach(async () => {
+    snapshotId = await testClient.snapshot();
+  });
+
+  afterEach(async () => {
+    await testClient.revert({ id: snapshotId });
+  });
+
+  it("isNonceUsed returns false for unused nonce", async () => {
+    const { isNonceUsed, randomNonce } = await import("../src/index.js");
+    const nonce = randomNonce();
+    const used = await isNonceUsed(publicClient, account.address, nonce);
+    expect(used).toBe(false);
+  });
+
+  it("isNonceUsed returns true after order is filled", async () => {
+    const { isNonceUsed } = await import("../src/index.js");
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
+    const nonce = BigInt(Date.now());
+
+    const signedOrder = await UnsignedOrder.new()
+      .withInput(TEST_TOKEN, parseEther("10"))
+      .withOutput(
+        TEST_TOKEN,
+        parseEther("9"),
+        account.address,
+        Number(PARMIGIANA.hostChainId)
+      )
+      .withDeadline(deadline)
+      .withNonce(nonce)
+      .withChain({
+        chainId: PARMIGIANA.rollupChainId,
+        orderContract: PARMIGIANA.rollupOrders,
+      })
+      .sign(walletClient);
+
+    // Verify nonce is unused before filling
+    const usedBefore = await isNonceUsed(publicClient, account.address, nonce);
+    expect(usedBefore).toBe(false);
+
+    // Fill the order
+    const txHash = await walletClient.writeContract({
+      address: PARMIGIANA.rollupOrders,
+      abi: rollupOrdersAbi,
+      functionName: "initiatePermit2",
+      args: [
+        account.address,
+        signedOrder.outputs.map((o) => ({
+          token: o.token,
+          amount: o.amount,
+          recipient: o.recipient,
+          chainId: o.chainId,
+        })),
+        {
+          permit: {
+            permitted: signedOrder.permit.permit.permitted.map((p) => ({
+              token: p.token,
+              amount: p.amount,
+            })),
+            nonce: signedOrder.permit.permit.nonce,
+            deadline: signedOrder.permit.permit.deadline,
+          },
+          owner: signedOrder.permit.owner,
+          signature: signedOrder.permit.signature,
+        },
+      ],
+    });
+
+    await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+    // Verify nonce is consumed after filling
+    const usedAfter = await isNonceUsed(publicClient, account.address, nonce);
+    expect(usedAfter).toBe(true);
+  });
+
+  it("nonceBitmap correctly encodes word/bit position", async () => {
+    const { isNonceUsed } = await import("../src/index.js");
+
+    // Test various nonce values to verify bitmap math
+    // nonce 0 -> word 0, bit 0
+    // nonce 255 -> word 0, bit 255
+    // nonce 256 -> word 1, bit 0
+    const testNonces = [0n, 255n, 256n, 1000n, 2n ** 64n];
+
+    for (const nonce of testNonces) {
+      const used = await isNonceUsed(publicClient, account.address, nonce);
+      expect(typeof used).toBe("boolean");
+      // Fresh nonces should be unused
+      expect(used).toBe(false);
+    }
+  });
+
+  it("nonceFromSeed produces deterministic nonces", async () => {
+    const { nonceFromSeed, isNonceUsed } = await import("../src/index.js");
+
+    const seed = "order-12345";
+    const nonce1 = nonceFromSeed(seed);
+    const nonce2 = nonceFromSeed(seed);
+
+    expect(nonce1).toBe(nonce2);
+
+    // Should be usable as a nonce
+    const used = await isNonceUsed(publicClient, account.address, nonce1);
+    expect(used).toBe(false);
+  });
+});

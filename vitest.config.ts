@@ -4,6 +4,11 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    exclude: ["tests/anvil.test.ts", "tests/live.test.ts", "node_modules/**"],
+    exclude: [
+      "tests/anvil.test.ts",
+      "tests/feasibility.test.ts",
+      "tests/live.test.ts",
+      "node_modules/**",
+    ],
   },
 });
