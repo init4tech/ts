@@ -79,6 +79,21 @@ const order: SignedOrder = {
 const hash = orderHash(order);
 ```
 
+### Submitting Orders to the Transaction Pool
+
+After signing an order, submit it to the Signet transaction pool for fillers to discover and execute:
+
+```typescript
+import { createTxCacheClient } from "@signet-sh/sdk/client";
+
+// Create a client pointing to the Signet tx-cache
+const txCache = createTxCacheClient("https://tx.signet.sh");
+
+// Submit a signed order
+const { id } = await txCache.submitOrder(signedOrder);
+console.log(`Order submitted with ID: ${id}`);
+```
+
 ### Chain Configurations
 
 ```typescript
@@ -101,6 +116,7 @@ import { MAINNET, PARMIGIANA } from "@signet-sh/sdk/constants";
 import { UnsignedOrder } from "@signet-sh/sdk/signing";
 import type { SignedOrder } from "@signet-sh/sdk/types";
 import { rollupOrdersAbi } from "@signet-sh/sdk/abi";
+import { createTxCacheClient } from "@signet-sh/sdk/client";
 ```
 
 ## API Reference
@@ -123,6 +139,11 @@ import { rollupOrdersAbi } from "@signet-sh/sdk/abi";
 
 - `UnsignedOrder` - Builder for creating unsigned orders
 - `UnsignedFill` - Builder for creating unsigned fills
+
+### Client
+
+- `createTxCacheClient(baseUrl)` - Create a client for submitting orders to the transaction pool
+  - `submitOrder(order)` - Submit a signed order
 
 ### Constants
 
