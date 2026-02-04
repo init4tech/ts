@@ -35,6 +35,18 @@
     "./client": {
       "import": "./dist/client/index.js",
       "types": "./dist/client/index.d.ts"
+    },
+    "./passage": {
+      "import": "./dist/passage/index.js",
+      "types": "./dist/passage/index.d.ts"
+    },
+    "./weth": {
+      "import": "./dist/weth/index.js",
+      "types": "./dist/weth/index.d.ts"
+    },
+    "./permit2": {
+      "import": "./dist/permit2/index.js",
+      "types": "./dist/permit2/index.d.ts"
     }
   },
   "files": [
