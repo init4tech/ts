@@ -96,77 +96,37 @@ console.log(`Order submitted with ID: ${id}`);
 
 ### On-Chain Operations
 
-The SDK provides helpers for common on-chain operations:
-
-#### Bridging with Passage
-
-Enter Signet from the host chain:
-
-```typescript
-import { enter, enterToken, MAINNET } from "@signet-sh/sdk";
-import { createWalletClient, http } from "viem";
-import { mainnet } from "viem/chains";
-
-const client = createWalletClient({
-  account,
-  chain: mainnet,
-  transport: http(),
-});
-
-// Bridge native ETH
-const hash = await enter(client, {
-  passage: MAINNET.hostPassage,
-  recipient: "0x...",
-  amount: 1000000000000000000n, // 1 ETH
-});
-
-// Bridge ERC20 tokens (requires prior approval)
-const hash = await enterToken(client, {
-  passage: MAINNET.hostPassage,
-  rollupChainId: MAINNET.rollupChainId,
-  recipient: "0x...",
-  token: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
-  amount: 1000000n, // 1 USDC
-});
-```
-
-#### WETH Wrapping
-
-Convert between ETH and WETH:
-
-```typescript
-import { wrapEth, unwrapEth, getTokenAddress, MAINNET } from "@signet-sh/sdk";
-
-const wethAddress = getTokenAddress("WETH", MAINNET.hostChainId, MAINNET)!;
-
-// Wrap ETH → WETH
-await wrapEth(client, { weth: wethAddress, amount: 1000000000000000000n });
-
-// Unwrap WETH → ETH
-await unwrapEth(client, { weth: wethAddress, amount: 1000000000000000000n });
-```
+The SDK exports ABIs and constants for on-chain operations. Use viem directly for contract interactions:
 
 #### Permit2 Approvals
 
-Manage ERC20 approvals for Permit2:
-
 ```typescript
-import {
-  getPermit2Allowance,
-  approvePermit2,
-  ensurePermit2Approval,
-} from "@signet-sh/sdk";
+import { PERMIT2_ADDRESS } from "@signet-sh/sdk";
+import { erc20Abi, maxUint256 } from "viem";
 
-// Check current allowance
-const allowance = await getPermit2Allowance(publicClient, {
-  token: usdcAddress,
-  owner: account.address,
+// Approve Permit2 to spend your tokens (one-time per token)
+await walletClient.writeContract({
+  address: tokenAddress,
+  abi: erc20Abi,
+  functionName: "approve",
+  args: [PERMIT2_ADDRESS, maxUint256],
 });
 
-// Approve Permit2 (max by default)
-await approvePermit2(walletClient, { token: usdcAddress });
+// Check current allowance
+const allowance = await publicClient.readContract({
+  address: tokenAddress,
+  abi: erc20Abi,
+  functionName: "allowance",
+  args: [ownerAddress, PERMIT2_ADDRESS],
+});
+```
 
-// Smart approval - handles USDT-style tokens that require reset to zero
+For tokens like USDT that require resetting allowance to zero before setting a new value, use `ensurePermit2Approval`:
+
+```typescript
+import { ensurePermit2Approval } from "@signet-sh/sdk";
+
+// Handles USDT-style tokens automatically
 const { approved, txHash } = await ensurePermit2Approval(
   walletClient,
   publicClient,
@@ -176,6 +136,66 @@ const { approved, txHash } = await ensurePermit2Approval(
     amount: 1000000n,
   }
 );
+```
+
+#### Bridging with Passage
+
+```typescript
+import { passageAbi, MAINNET } from "@signet-sh/sdk";
+
+// Bridge native ETH to Signet
+await walletClient.writeContract({
+  address: MAINNET.hostPassage,
+  abi: passageAbi,
+  functionName: "enter",
+  args: [recipientAddress],
+  value: 1000000000000000000n, // 1 ETH
+});
+
+// Bridge ERC20 tokens to Signet (requires prior token approval to Passage)
+await walletClient.writeContract({
+  address: MAINNET.hostPassage,
+  abi: passageAbi,
+  functionName: "enterToken",
+  args: [MAINNET.rollupChainId, recipientAddress, tokenAddress, amount],
+});
+```
+
+#### WETH Wrapping
+
+```typescript
+import { wethAbi, getTokenAddress, MAINNET } from "@signet-sh/sdk";
+
+const wethAddress = getTokenAddress("WETH", MAINNET.hostChainId, MAINNET)!;
+
+// Wrap ETH → WETH
+await walletClient.writeContract({
+  address: wethAddress,
+  abi: wethAbi,
+  functionName: "deposit",
+  value: 1000000000000000000n, // 1 ETH
+});
+
+// Unwrap WETH → ETH
+await walletClient.writeContract({
+  address: wethAddress,
+  abi: wethAbi,
+  functionName: "withdraw",
+  args: [1000000000000000000n], // 1 WETH
+});
+```
+
+#### Reading Output Witness
+
+```typescript
+import { rollupOrdersAbi, MAINNET } from "@signet-sh/sdk";
+
+const { witnessHash, witnessTypeString } = await publicClient.readContract({
+  address: MAINNET.rollupOrders,
+  abi: rollupOrdersAbi,
+  functionName: "outputWitness",
+  args: [outputs],
+});
 ```
 
 ### Chain Configurations
@@ -199,10 +219,8 @@ console.log(PARMIGIANA.rollupChainId); // 88888n
 import { MAINNET, PARMIGIANA } from "@signet-sh/sdk/constants";
 import { UnsignedOrder } from "@signet-sh/sdk/signing";
 import type { SignedOrder } from "@signet-sh/sdk/types";
-import { rollupOrdersAbi } from "@signet-sh/sdk/abi";
+import { rollupOrdersAbi, passageAbi, wethAbi } from "@signet-sh/sdk/abi";
 import { createTxCacheClient } from "@signet-sh/sdk/client";
-import { enter, enterToken } from "@signet-sh/sdk/passage";
-import { wrapEth, unwrapEth } from "@signet-sh/sdk/weth";
 import { ensurePermit2Approval } from "@signet-sh/sdk/permit2";
 ```
 
@@ -379,12 +397,6 @@ const balances = await Promise.all(
 - `serializeEthBundle(bundle)` - Serialize bundle for JSON-RPC
 - `serializeCallBundle(bundle)` - Serialize call bundle for JSON-RPC
 - `createTxCacheClient(url)` - Create a tx-cache client for bundle submission
-- `enter(client, params)` - Bridge native ETH to Signet via Passage
-- `enterToken(client, params)` - Bridge ERC20 tokens to Signet via Passage
-- `wrapEth(client, params)` - Wrap native ETH into WETH
-- `unwrapEth(client, params)` - Unwrap WETH back to native ETH
-- `getPermit2Allowance(client, params)` - Get ERC20 allowance for Permit2
-- `approvePermit2(client, params)` - Approve Permit2 to spend ERC20
 - `ensurePermit2Approval(walletClient, publicClient, params)` - Smart Permit2 approval with USDT handling
 - `getTokenDecimals(symbol, config?)` - Get token decimals with chain-specific overrides
 - `needsWethWrap(symbol, direction, flow)` - Check if ETH needs wrapping for operation
@@ -406,6 +418,13 @@ const balances = await Promise.all(
 - `PERMIT2_ADDRESS` - Canonical Permit2 contract address
 - `MAINNET` - Mainnet chain configuration
 - `PARMIGIANA` - Parmigiana testnet configuration
+
+### ABIs
+
+- `passageAbi` - Passage bridge contract ABI
+- `wethAbi` - WETH contract ABI
+- `rollupOrdersAbi` - Rollup orders contract ABI
+- `permit2Abi` - Permit2 contract ABI
 
 ## Compatibility
 

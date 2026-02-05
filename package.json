@@ -1,6 +1,6 @@
 {
   "name": "@signet-sh/sdk",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "TypeScript SDK for Signet Orders - create, sign, and verify orders compatible with signet-types",
   "type": "module",
   "main": "./dist/index.js",
@@ -35,14 +35,6 @@
     "./client": {
       "import": "./dist/client/index.js",
       "types": "./dist/client/index.d.ts"
-    },
-    "./passage": {
-      "import": "./dist/passage/index.js",
-      "types": "./dist/passage/index.d.ts"
-    },
-    "./weth": {
-      "import": "./dist/weth/index.js",
-      "types": "./dist/weth/index.d.ts"
     },
     "./permit2": {
       "import": "./dist/permit2/index.js",

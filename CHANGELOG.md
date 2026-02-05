@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Breaking:** `needsWethWrap(symbol, direction, flow)` now requires a `flow` parameter to distinguish between Passage (direct ETH entry) and Orders (Permit2, requires WETH) flows
 
-## [0.2.0] - 2026-02-05
+## [0.3.0] - 2026-02-05
 
 ### Added
 
@@ -28,16 +28,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bundle serialization helpers (`serializeEthBundle`, `serializeCallBundle`)
 - Order feasibility checking (`checkOrderFeasibility`)
 - Tx-cache client (`createTxCacheClient`) for submitting orders and bundles
-- Passage helpers (`enter`, `enterToken`) for bridging to Signet
-- WETH helpers (`wrapEth`, `unwrapEth`) for wrapping/unwrapping ETH
-- Permit2 approval helpers (`getPermit2Allowance`, `approvePermit2`, `ensurePermit2Approval`)
+- Permit2 approval helpers (`ensurePermit2Approval`)
 - Token registry with USDC/USDT addresses for Mainnet and Parmigiana
 - Viem chain definitions (`signetRollup`, `parmigianaRollup`, `parmigianaHost`)
-- New subpath exports: `/client`, `/passage`, `/weth`, `/permit2`
+- New subpath exports: `/client`, `/permit2`
 
 ### Changed
 
 - Expanded token mapping utilities (`getTokenAddress`, `resolveTokenSymbol`, `mapTokenCrossChain`)
+
+### Fixed
+
+- Release workflow now correctly publishes scoped packages to npm with `--access public`
+
+### Note
+
+- v0.2.0 was tagged but never published to npm due to a CI issue
 
 ## [0.1.0] - 2026-01-15
 

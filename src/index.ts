@@ -119,7 +119,6 @@ export {
   eip712SigningHash,
   encodeFillPermit2,
   encodeInitiatePermit2,
-  getOutputWitness,
   hasPermit2Approval,
   isNonceUsed,
   nonceFromSeed,
@@ -169,15 +168,5 @@ export type { TxCacheClient } from "./client/index.js";
 
 export { createTxCacheClient } from "./client/index.js";
 
-// Passage
-export { enter, enterToken } from "./passage/index.js";
-
-// WETH
-export { wrapEth, unwrapEth } from "./weth/index.js";
-
 // Permit2 approvals
-export {
-  getPermit2Allowance,
-  approvePermit2,
-  ensurePermit2Approval,
-} from "./permit2/index.js";
+export { ensurePermit2Approval } from "./permit2/index.js";

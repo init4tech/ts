@@ -25,8 +25,6 @@ export { UnsignedFill } from "./fill.js";
 
 export { isNonceUsed, nonceFromSeed, randomNonce } from "./nonce.js";
 
-export { getOutputWitness } from "./witness.js";
-
 export { encodeFillPermit2, encodeInitiatePermit2 } from "./encode.js";
 
 export { validateFill, validateOrder } from "./validate.js";
