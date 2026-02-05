@@ -119,12 +119,70 @@ import { rollupOrdersAbi } from "@signet-sh/sdk/abi";
 import { createTxCacheClient } from "@signet-sh/sdk/client";
 ```
 
+### Bundles
+
+> **⚠️ SECURITY WARNING: Bundles are private information and MUST be kept safe.**
+>
+> Never log, share, or transmit bundles over unencrypted connections. Leaked bundles expose your trading strategy and can be front-run.
+
+Bundles are atomic transaction packages for block builders:
+
+```typescript
+import {
+  SignetEthBundleBuilder,
+  createTxCacheClient,
+  type Hex,
+} from "@signet-sh/sdk";
+
+// Build a bundle from signed transactions
+const signedTx: Hex = "0x02f8..."; // Your signed transaction
+
+const bundle = SignetEthBundleBuilder.new()
+  .withTx(signedTx)
+  .withBlockNumber(12345678n)
+  .build();
+
+// Submit to tx-cache
+const txCache = createTxCacheClient("https://tx.signet.sh");
+const response = await txCache.submitBundle(bundle);
+console.log("Bundle ID:", response.id);
+```
+
+Bundle with host transactions and timing constraints:
+
+```typescript
+const bundle = SignetEthBundleBuilder.new()
+  .withTxs([tx1, tx2]) // Rollup transactions
+  .withHostTx(hostTx) // Host chain transaction
+  .withBlockNumber(12345678n)
+  .withMinTimestamp(Math.floor(Date.now() / 1000))
+  .withMaxTimestamp(Math.floor(Date.now() / 1000) + 120)
+  .build();
+```
+
+Simulate a bundle before submission:
+
+```typescript
+import { SignetCallBundleBuilder, serializeCallBundle } from "@signet-sh/sdk";
+
+const callBundle = SignetCallBundleBuilder.new()
+  .withTx(signedTx)
+  .withBlockNumber(12345679n)
+  .withStateBlockNumber("latest")
+  .build();
+
+const serialized = serializeCallBundle(callBundle);
+// Use with signet_callBundle RPC method
+```
+
 ## API Reference
 
 ### Types
 
 - `SignedOrder` - A signed order ready for submission
 - `SignedFill` - A signed fill for filling orders
+- `SignetEthBundle` - Bundle for `signet_sendBundle`
+- `SignetCallBundle` - Bundle for `signet_callBundle` (simulation)
 - `Permit2Batch` - Permit2 batch transfer data
 - `Output` - Order output specification
 - `TokenPermissions` - Token permission for Permit2
@@ -134,11 +192,16 @@ import { createTxCacheClient } from "@signet-sh/sdk/client";
 - `orderHash(order)` - Compute the order hash
 - `orderHashPreImage(order)` - Get the pre-image used for hashing
 - `normalizeSignature(sig)` - Normalize ECDSA signature S-value
+- `serializeEthBundle(bundle)` - Serialize bundle for JSON-RPC
+- `serializeCallBundle(bundle)` - Serialize call bundle for JSON-RPC
+- `createTxCacheClient(url)` - Create a tx-cache client for bundle submission
 
 ### Classes
 
 - `UnsignedOrder` - Builder for creating unsigned orders
 - `UnsignedFill` - Builder for creating unsigned fills
+- `SignetEthBundleBuilder` - Builder for creating eth bundles
+- `SignetCallBundleBuilder` - Builder for creating call bundles
 
 ### Client
 

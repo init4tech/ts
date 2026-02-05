@@ -1,9 +1,11 @@
+import type { SignetEthBundle } from "../types/bundle.js";
 import type { SignedOrder } from "../types/order.js";
+import { serializeEthBundle } from "../types/bundleSerialization.js";
 import { serializeOrder } from "../types/serialization.js";
 
 export interface TxCacheClient {
   submitOrder(order: SignedOrder): Promise<{ id: string }>;
-  submitBundle(orders: SignedOrder[]): Promise<{ id: string }>;
+  submitBundle(bundle: SignetEthBundle): Promise<{ id: string }>;
 }
 
 export function createTxCacheClient(baseUrl: string): TxCacheClient {
@@ -26,8 +28,8 @@ export function createTxCacheClient(baseUrl: string): TxCacheClient {
     submitOrder(order) {
       return post("/orders", serializeOrder(order));
     },
-    submitBundle(orders) {
-      return post("/bundles", orders.map(serializeOrder));
+    submitBundle(bundle) {
+      return post("/bundles", serializeEthBundle(bundle));
     },
   };
 }
