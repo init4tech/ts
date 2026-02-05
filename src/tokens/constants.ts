@@ -1,3 +1,5 @@
+import type { SignetSystemConstants } from "../constants/chains.js";
+
 export interface TokenMeta {
   readonly symbol: string;
   readonly name: string;
@@ -15,3 +17,20 @@ export const TOKENS = {
 } as const satisfies Record<string, TokenMeta>;
 
 export type TokenSymbol = keyof typeof TOKENS;
+
+/**
+ * Get the decimals for a token, with chain-specific overrides.
+ *
+ * Some testnets use different token decimals than mainnet. For example,
+ * Parmigiana uses 18 decimals for WUSD instead of mainnet's 6.
+ *
+ * @param symbol - The token symbol
+ * @param config - Optional chain config with tokenDecimals overrides
+ * @returns The number of decimals for the token
+ */
+export function getTokenDecimals(
+  symbol: TokenSymbol,
+  config?: SignetSystemConstants
+): number {
+  return config?.tokenDecimals?.[symbol] ?? TOKENS[symbol].decimals;
+}

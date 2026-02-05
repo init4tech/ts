@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `getTokenDecimals(symbol, config?)` helper for chain-aware decimal lookup
+- `tokenDecimals` field on `SignetSystemConstants` for testnet overrides
+- PARMIGIANA now includes `tokenDecimals: { WUSD: 18 }` override
+- `Flow` type export (`"passage"` | `"orders"`)
+- RPC Patterns documentation section in README
+
+### Changed
+
+- **Breaking:** `needsWethWrap(symbol, direction, flow)` now requires a `flow` parameter to distinguish between Passage (direct ETH entry) and Orders (Permit2, requires WETH) flows
+
 ## [0.2.0] - 2026-02-05
 
 ### Added

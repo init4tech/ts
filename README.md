@@ -262,6 +262,101 @@ const serialized = serializeCallBundle(callBundle);
 // Use with signet_callBundle RPC method
 ```
 
+## RPC Patterns
+
+The SDK exports ABIs and token utilities. Use viem directly for RPC operations.
+
+### Fetching Passage Events
+
+```typescript
+import { createPublicClient, http, getContract } from "viem";
+import {
+  passageAbi,
+  PARMIGIANA,
+  getTokenAddress,
+  resolveTokenSymbol,
+} from "@signet-sh/sdk";
+
+const client = createPublicClient({ chain, transport: http(rpcUrl) });
+
+const passage = getContract({
+  address: PARMIGIANA.hostPassage,
+  abi: passageAbi,
+  client,
+});
+
+// Get Enter events (native ETH entries)
+const enterLogs = await passage.getEvents.Enter({
+  rollupChainId: PARMIGIANA.rollupChainId,
+  rollupRecipient: userAddress,
+});
+
+// Get EnterToken events (ERC20 entries)
+const enterTokenLogs = await passage.getEvents.EnterToken({
+  rollupChainId: PARMIGIANA.rollupChainId,
+  rollupRecipient: userAddress,
+});
+
+// Resolve token symbols from logs
+for (const log of enterTokenLogs) {
+  const symbol = resolveTokenSymbol(
+    log.args.token,
+    PARMIGIANA.hostChainId,
+    PARMIGIANA
+  );
+  console.log(`Entered ${log.args.amount} of ${symbol}`);
+}
+```
+
+### Fetching Token Balances
+
+```typescript
+import { createPublicClient, http, erc20Abi, formatUnits } from "viem";
+import { PARMIGIANA, getTokenAddress, getTokenDecimals } from "@signet-sh/sdk";
+
+const client = createPublicClient({ chain, transport: http(rpcUrl) });
+
+// Fetch native ETH balance
+const ethBalance = await client.getBalance({ address: userAddress });
+
+// Fetch ERC20 balance
+const wethAddress = getTokenAddress("WETH", PARMIGIANA.hostChainId, PARMIGIANA);
+const wethBalance = await client.readContract({
+  address: wethAddress,
+  abi: erc20Abi,
+  functionName: "balanceOf",
+  args: [userAddress],
+});
+
+// Format with correct decimals (uses testnet override if available)
+const decimals = getTokenDecimals("WETH", PARMIGIANA);
+const formatted = formatUnits(wethBalance, decimals);
+```
+
+### Batch Balance Fetching
+
+```typescript
+import { getTokenAddress, getTokenDecimals } from "@signet-sh/sdk";
+
+const tokens = ["WETH", "WBTC", "USDC"] as const;
+
+const balances = await Promise.all(
+  tokens.map(async (symbol) => {
+    const address = getTokenAddress(symbol, chainId, config);
+    if (!address) return { symbol, balance: 0n };
+
+    const balance = await client.readContract({
+      address,
+      abi: erc20Abi,
+      functionName: "balanceOf",
+      args: [userAddress],
+    });
+
+    return { symbol, balance, decimals: getTokenDecimals(symbol, config) };
+  })
+);
+```
+
 ## API Reference
 
 ### Types
@@ -273,6 +368,8 @@ const serialized = serializeCallBundle(callBundle);
 - `Permit2Batch` - Permit2 batch transfer data
 - `Output` - Order output specification
 - `TokenPermissions` - Token permission for Permit2
+- `Flow` - Entry mechanism type: `"passage"` or `"orders"`
+- `TokenSymbol` - Supported token symbols
 
 ### Functions
 
@@ -289,6 +386,8 @@ const serialized = serializeCallBundle(callBundle);
 - `getPermit2Allowance(client, params)` - Get ERC20 allowance for Permit2
 - `approvePermit2(client, params)` - Approve Permit2 to spend ERC20
 - `ensurePermit2Approval(walletClient, publicClient, params)` - Smart Permit2 approval with USDT handling
+- `getTokenDecimals(symbol, config?)` - Get token decimals with chain-specific overrides
+- `needsWethWrap(symbol, direction, flow)` - Check if ETH needs wrapping for operation
 
 ### Classes
 

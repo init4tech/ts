@@ -1,4 +1,5 @@
 import type { Address } from "viem";
+import type { TokenSymbol } from "../tokens/constants.js";
 
 export interface SignetSystemConstants {
   readonly hostChainId: bigint;
@@ -11,6 +12,7 @@ export interface SignetSystemConstants {
   readonly rollupPassage: Address;
   readonly txCacheUrl: string;
   readonly slotTime: bigint;
+  readonly tokenDecimals?: Partial<Record<TokenSymbol, number>>;
 }
 
 export const MAINNET: SignetSystemConstants = {
@@ -37,6 +39,9 @@ export const PARMIGIANA: SignetSystemConstants = {
   rollupPassage: "0x0000000000007369676E65742D70617373616765",
   txCacheUrl: "https://transactions.parmigiana.signet.sh",
   slotTime: 12n,
+  tokenDecimals: {
+    WUSD: 18,
+  },
 } as const;
 
 export function getOrdersContract(
