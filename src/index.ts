@@ -152,11 +152,12 @@ export {
 } from "./abi/index.js";
 
 // Tokens
-export type { TokenMeta, TokenSymbol } from "./tokens/index.js";
+export type { Flow, TokenMeta, TokenSymbol } from "./tokens/index.js";
 
 export {
   getAvailableTokens,
   getTokenAddress,
+  getTokenDecimals,
   mapTokenCrossChain,
   needsWethWrap,
   resolveTokenSymbol,

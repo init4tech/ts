@@ -5,6 +5,7 @@ import {
   resolveTokenSymbol,
   getAvailableTokens,
 } from "../src/tokens/addresses.js";
+import { getTokenDecimals, TOKENS } from "../src/tokens/constants.js";
 import { mapTokenCrossChain, needsWethWrap } from "../src/tokens/mapping.js";
 
 describe("getTokenAddress", () => {
@@ -74,15 +75,57 @@ describe("mapTokenCrossChain", () => {
 });
 
 describe("needsWethWrap", () => {
-  it("ETH needs wrap for host to rollup", () => {
-    expect(needsWethWrap("ETH", "hostToRollup")).toBe(true);
+  describe("orders flow", () => {
+    it("ETH needs wrap for host to rollup", () => {
+      expect(needsWethWrap("ETH", "hostToRollup", "orders")).toBe(true);
+    });
+
+    it("ETH does not need wrap for rollup to host", () => {
+      expect(needsWethWrap("ETH", "rollupToHost", "orders")).toBe(false);
+    });
+
+    it("WETH does not need wrap", () => {
+      expect(needsWethWrap("WETH", "hostToRollup", "orders")).toBe(false);
+    });
   });
 
-  it("ETH does not need wrap for rollup to host", () => {
-    expect(needsWethWrap("ETH", "rollupToHost")).toBe(false);
+  describe("passage flow", () => {
+    it("ETH does not need wrap for host to rollup", () => {
+      expect(needsWethWrap("ETH", "hostToRollup", "passage")).toBe(false);
+    });
+
+    it("ETH does not need wrap for rollup to host", () => {
+      expect(needsWethWrap("ETH", "rollupToHost", "passage")).toBe(false);
+    });
+
+    it("WETH does not need wrap", () => {
+      expect(needsWethWrap("WETH", "hostToRollup", "passage")).toBe(false);
+    });
+  });
+});
+
+describe("getTokenDecimals", () => {
+  it("returns mainnet decimals by default", () => {
+    expect(getTokenDecimals("WUSD")).toBe(6);
+    expect(getTokenDecimals("WETH")).toBe(18);
+    expect(getTokenDecimals("WBTC")).toBe(8);
   });
 
-  it("WETH does not need wrap", () => {
-    expect(needsWethWrap("WETH", "hostToRollup")).toBe(false);
+  it("returns mainnet decimals with MAINNET config", () => {
+    expect(getTokenDecimals("WUSD", MAINNET)).toBe(6);
+  });
+
+  it("returns testnet override for PARMIGIANA", () => {
+    expect(getTokenDecimals("WUSD", PARMIGIANA)).toBe(18);
+  });
+
+  it("returns default when no override exists", () => {
+    expect(getTokenDecimals("WETH", PARMIGIANA)).toBe(18);
+    expect(getTokenDecimals("WBTC", PARMIGIANA)).toBe(8);
+  });
+
+  it("matches TOKENS constant when no override", () => {
+    expect(getTokenDecimals("USDC")).toBe(TOKENS.USDC.decimals);
+    expect(getTokenDecimals("USDT")).toBe(TOKENS.USDT.decimals);
   });
 });
