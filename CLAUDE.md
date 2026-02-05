@@ -63,3 +63,21 @@ Releases are automated via GitHub Actions. To release:
 2. Move `[Unreleased]` entries to a new version section in `CHANGELOG.md`
 3. Commit and push to `main`
 4. CI creates GitHub release and publishes to npm
+
+## SDK Scope
+
+The SDK focuses on:
+
+- Types and type definitions
+- Contract ABIs
+- EIP-712 signing logic
+- Chain constants and addresses
+- Complex operations that add real value (validation, aggregation, edge case handling)
+
+The SDK should NOT include:
+
+- Thin wrappers around viem's `readContract`/`writeContract`
+- Simple parameter rearrangement helpers
+- Functions that just inject a constant into a viem call
+
+Instead, export the ABIs and constants, then document direct viem usage patterns in README.

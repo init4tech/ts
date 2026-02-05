@@ -57,8 +57,8 @@ jobs:
           else
             echo "New release needed"
             gh release create "$PKG_VER" -t "$PKG_VER" --generate-notes
-            # publish to npm
-            pnpm publish --no-git-checks
+            # publish to npm (--access public required for scoped packages with provenance)
+            pnpm publish --no-git-checks --access public
             # Add the release information to the github actions summary
             echo "# New Release Created" >> $GITHUB_STEP_SUMMARY
             echo "Tag: [$PKG_VER](https://github.com/${{ github.repository }}/releases/tag/${PKG_VER})" >> $GITHUB_STEP_SUMMARY

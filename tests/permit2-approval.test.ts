@@ -1,9 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  getPermit2Allowance,
-  approvePermit2,
-  ensurePermit2Approval,
-} from "../src/permit2/index.js";
+import { ensurePermit2Approval } from "../src/permit2/index.js";
 import { PERMIT2_ADDRESS } from "../src/constants/permit2.js";
 import type {
   Account,
@@ -33,51 +29,6 @@ function mockWalletClient(): ConfiguredWalletClient {
   } as unknown as ConfiguredWalletClient;
 }
 
-describe("getPermit2Allowance", () => {
-  it("reads allowance for Permit2", async () => {
-    const client = mockPublicClient(1000n);
-    const allowance = await getPermit2Allowance(client, {
-      token: TOKEN,
-      owner: OWNER,
-    });
-
-    expect(allowance).toBe(1000n);
-    expect(client.readContract).toHaveBeenCalledWith(
-      expect.objectContaining({
-        address: TOKEN,
-        functionName: "allowance",
-        args: [OWNER, PERMIT2_ADDRESS],
-      })
-    );
-  });
-});
-
-describe("approvePermit2", () => {
-  it("approves max by default", async () => {
-    const client = mockWalletClient();
-    await approvePermit2(client, { token: TOKEN });
-
-    expect(client.writeContract).toHaveBeenCalledWith(
-      expect.objectContaining({
-        address: TOKEN,
-        functionName: "approve",
-        args: [PERMIT2_ADDRESS, maxUint256],
-      })
-    );
-  });
-
-  it("approves specific amount", async () => {
-    const client = mockWalletClient();
-    await approvePermit2(client, { token: TOKEN, amount: 500n });
-
-    expect(client.writeContract).toHaveBeenCalledWith(
-      expect.objectContaining({
-        args: [PERMIT2_ADDRESS, 500n],
-      })
-    );
-  });
-});
-
 describe("ensurePermit2Approval", () => {
   it("skips if allowance sufficient", async () => {
     const pub = mockPublicClient(maxUint256);
@@ -106,6 +57,13 @@ describe("ensurePermit2Approval", () => {
 
     expect(result.approved).toBe(true);
     expect(result.txHash).toBe("0xdeadbeef");
+    expect(wallet.writeContract).toHaveBeenCalledWith(
+      expect.objectContaining({
+        address: TOKEN,
+        functionName: "approve",
+        args: [PERMIT2_ADDRESS, maxUint256],
+      })
+    );
   });
 
   it("resets to zero for USDT-style tokens", async () => {

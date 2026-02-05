@@ -20,50 +20,6 @@ import { PERMIT2_ADDRESS } from "../constants/permit2.js";
 type ConfiguredWalletClient = WalletClient<Transport, Chain, Account>;
 
 /**
- * Read the ERC20 allowance granted to the Permit2 contract.
- *
- * @param client - Public client for reading chain state
- * @param params - Query parameters
- * @returns Current allowance
- */
-export async function getPermit2Allowance(
-  client: PublicClient,
-  params: {
-    token: Address;
-    owner: Address;
-  }
-): Promise<bigint> {
-  return client.readContract({
-    address: params.token,
-    abi: erc20Abi,
-    functionName: "allowance",
-    args: [params.owner, PERMIT2_ADDRESS],
-  });
-}
-
-/**
- * Approve the Permit2 contract to spend an ERC20 token.
- *
- * @param client - Wallet client with chain and account configured
- * @param params - Approval parameters
- * @returns Transaction hash
- */
-export async function approvePermit2(
-  client: ConfiguredWalletClient,
-  params: {
-    token: Address;
-    amount?: bigint;
-  }
-): Promise<Hash> {
-  return client.writeContract({
-    address: params.token,
-    abi: erc20Abi,
-    functionName: "approve",
-    args: [PERMIT2_ADDRESS, params.amount ?? maxUint256],
-  });
-}
-
-/**
  * Ensure the Permit2 contract has sufficient ERC20 allowance.
  * Handles USDT-style tokens by resetting to zero before approving.
  *
@@ -81,9 +37,11 @@ export async function ensurePermit2Approval(
     amount: bigint;
   }
 ): Promise<{ approved: boolean; txHash?: Hash }> {
-  const allowance = await getPermit2Allowance(publicClient, {
-    token: params.token,
-    owner: params.owner,
+  const allowance = await publicClient.readContract({
+    address: params.token,
+    abi: erc20Abi,
+    functionName: "allowance",
+    args: [params.owner, PERMIT2_ADDRESS],
   });
 
   if (allowance >= params.amount) {
@@ -101,8 +59,11 @@ export async function ensurePermit2Approval(
     await publicClient.waitForTransactionReceipt({ hash: resetHash });
   }
 
-  const txHash = await approvePermit2(walletClient, {
-    token: params.token,
+  const txHash = await walletClient.writeContract({
+    address: params.token,
+    abi: erc20Abi,
+    functionName: "approve",
+    args: [PERMIT2_ADDRESS, maxUint256],
   });
 
   return { approved: true, txHash };
