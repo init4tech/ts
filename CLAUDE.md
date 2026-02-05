@@ -48,12 +48,18 @@
 - `viem` is the only production dependency (as peerDep)
 - Keep dependencies minimal - this is a library
 
+## Changelog
+
+- ALWAYS update `CHANGELOG.md` when adding features, fixing bugs, or making breaking changes
+- Follow [Keep a Changelog](https://keepachangelog.com/) format
+- Add entries under `[Unreleased]` section during development
+- Categories: Added, Changed, Deprecated, Removed, Fixed, Security
+
 ## Releases
 
-This project uses changesets for versioning:
+Releases are automated via GitHub Actions. To release:
 
-```bash
-pnpm changeset        # Create a new changeset
-pnpm changeset version  # Apply changesets and bump versions
-pnpm changeset publish  # Publish to npm
-```
+1. Update version in `package.json`
+2. Move `[Unreleased]` entries to a new version section in `CHANGELOG.md`
+3. Commit and push to `main`
+4. CI creates GitHub release and publishes to npm
