@@ -178,7 +178,11 @@ export {
 } from "./tokens/index.js";
 
 // Client
-export type { FaucetClient, FaucetClientOptions, TxCacheClient } from "./client/index.js";
+export type {
+  FaucetClient,
+  FaucetClientOptions,
+  TxCacheClient,
+} from "./client/index.js";
 
 export { createFaucetClient, createTxCacheClient } from "./client/index.js";
 
