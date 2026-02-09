@@ -58,6 +58,16 @@ export type {
   Bytes,
   CallBundleTransactionResult,
   ChainConfig,
+  FaucetAddressStatus,
+  FaucetAsset,
+  FaucetAssetCooldown,
+  FaucetAssetResult,
+  FaucetDripData,
+  FaucetDripRequest,
+  FaucetDripResponse,
+  FaucetError,
+  FaucetStatusRequest,
+  FaucetStatusResponse,
   FilledEvent,
   Hex,
   Input,
@@ -86,6 +96,7 @@ export {
   deserializeEthBundle,
   deserializeOrder,
   deserializeTransactionResult,
+  FaucetRequestError,
   OUTPUT_WITNESS_TYPE_STRING,
   PERMIT_BATCH_WITNESS_TRANSFER_FROM_TYPES,
   serializeCallBundle,
@@ -167,9 +178,9 @@ export {
 } from "./tokens/index.js";
 
 // Client
-export type { TxCacheClient } from "./client/index.js";
+export type { FaucetClient, FaucetClientOptions, TxCacheClient } from "./client/index.js";
 
-export { createTxCacheClient } from "./client/index.js";
+export { createFaucetClient, createTxCacheClient } from "./client/index.js";
 
 // Permit2 approvals
 export { ensurePermit2Approval } from "./permit2/index.js";

@@ -94,6 +94,57 @@ const { id } = await txCache.submitOrder(signedOrder);
 console.log(`Order submitted with ID: ${id}`);
 ```
 
+### Requesting Testnet Tokens (Faucet)
+
+Request testnet tokens for development on Parmigiana:
+
+```typescript
+import {
+  createFaucetClient,
+  FaucetRequestError,
+  PARMIGIANA,
+} from "@signet-sh/sdk";
+
+// Create a faucet client using the Parmigiana testnet faucet URL
+const faucet = createFaucetClient(PARMIGIANA.faucetUrl!);
+
+try {
+  // Request both USD and ETH tokens
+  const result = await faucet.requestTokens(
+    "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0"
+  );
+  console.log(result.message);
+  // "Successfully sent 1.00 USD + 0.05 ETH to your address"
+
+  console.log("USD tx:", result.results.usd?.transaction_hash);
+  console.log("ETH tx:", result.results.eth?.transaction_hash);
+} catch (err) {
+  if (err instanceof FaucetRequestError && err.isRateLimited) {
+    console.log("Already claimed today. Try again tomorrow.");
+  } else {
+    throw err;
+  }
+}
+
+// Request only specific tokens
+const usdOnly = await faucet.requestTokens(myAddress, ["usd"]);
+const ethOnly = await faucet.requestTokens(myAddress, ["eth"]);
+
+// Check cooldown status before requesting
+const canRequest = await faucet.canRequest(myAddress);
+if (canRequest) {
+  await faucet.requestTokens(myAddress);
+}
+
+// Batch check cooldown for multiple addresses
+const status = await faucet.checkCooldown([addr1, addr2, addr3]);
+for (const [addr, addrStatus] of Object.entries(status)) {
+  console.log(`${addr}: USD cooldown=${addrStatus.assets.usd.on_cooldown}`);
+}
+```
+
+**Rate Limits:** The faucet allows one claim per address per day (resets at midnight UTC).
+
 ### On-Chain Operations
 
 The SDK exports ABIs and constants for on-chain operations. Use viem directly for contract interactions:
@@ -218,9 +269,10 @@ console.log(PARMIGIANA.rollupChainId); // 88888n
 // Import specific modules for smaller bundle sizes
 import { MAINNET, PARMIGIANA } from "@signet-sh/sdk/constants";
 import { UnsignedOrder } from "@signet-sh/sdk/signing";
-import type { SignedOrder } from "@signet-sh/sdk/types";
+import type { SignedOrder, FaucetDripResponse } from "@signet-sh/sdk/types";
+import { FaucetRequestError } from "@signet-sh/sdk/types";
 import { rollupOrdersAbi, passageAbi, wethAbi } from "@signet-sh/sdk/abi";
-import { createTxCacheClient } from "@signet-sh/sdk/client";
+import { createTxCacheClient, createFaucetClient } from "@signet-sh/sdk/client";
 import { ensurePermit2Approval } from "@signet-sh/sdk/permit2";
 ```
 
@@ -462,6 +514,11 @@ const balances = await Promise.all(
 
 - `createTxCacheClient(baseUrl)` - Create a client for submitting orders to the transaction pool
   - `submitOrder(order)` - Submit a signed order
+- `createFaucetClient(baseUrl, options?)` - Create a client for requesting testnet tokens
+  - `requestTokens(address, assets?)` - Request USD and/or ETH tokens
+  - `checkCooldown(addresses)` - Check rate limit status for addresses
+  - `canRequest(address)` - Check if an address can request tokens
+- `FaucetRequestError` - Error class with `isRateLimited` property for handling rate limits
 
 ### Constants
 
