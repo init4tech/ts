@@ -280,6 +280,53 @@ const serialized = serializeCallBundle(callBundle);
 // Use with signet_callBundle RPC method
 ```
 
+### Parsing RollupOrders Events
+
+Use viem's `parseEventLogs` with the SDK's ABI and event types for typed event indexing:
+
+```typescript
+import { createPublicClient, http, parseEventLogs } from "viem";
+import {
+  rollupOrdersAbi,
+  MAINNET,
+  type OrderEvent,
+  type FilledEvent,
+  type SweepEvent,
+} from "@signet-sh/sdk";
+
+const client = createPublicClient({ chain, transport: http(rpcUrl) });
+
+// Fetch logs from a block range
+const logs = await client.getLogs({
+  address: MAINNET.rollupOrders,
+  fromBlock: 100n,
+  toBlock: 200n,
+});
+
+// Parse all RollupOrders events with full type safety
+const events = parseEventLogs({ abi: rollupOrdersAbi, logs });
+
+for (const event of events) {
+  switch (event.eventName) {
+    case "Order": {
+      const { deadline, inputs, outputs } = event.args as OrderEvent;
+      console.log(`Order with ${inputs.length} inputs, deadline ${deadline}`);
+      break;
+    }
+    case "Filled": {
+      const { outputs } = event.args as FilledEvent;
+      console.log(`Filled ${outputs.length} outputs`);
+      break;
+    }
+    case "Sweep": {
+      const { recipient, token, amount } = event.args as SweepEvent;
+      console.log(`Sweep ${amount} of ${token} to ${recipient}`);
+      break;
+    }
+  }
+}
+```
+
 ## RPC Patterns
 
 The SDK exports ABIs and token utilities. Use viem directly for RPC operations.
@@ -386,6 +433,9 @@ const balances = await Promise.all(
 - `Permit2Batch` - Permit2 batch transfer data
 - `Output` - Order output specification
 - `TokenPermissions` - Token permission for Permit2
+- `OrderEvent` - Parsed args from an `Order` event
+- `FilledEvent` - Parsed args from a `Filled` event
+- `SweepEvent` - Parsed args from a `Sweep` event
 - `Flow` - Entry mechanism type: `"passage"` or `"orders"`
 - `TokenSymbol` - Supported token symbols
 
