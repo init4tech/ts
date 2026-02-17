@@ -51,7 +51,10 @@ jobs:
           # get latest version from git tags
           GIT_VER=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "none")
           echo "Latest git tag: $GIT_VER"
-          if [ "$PKG_VER" == "$GIT_VER" ]; then
+          PKG_VER_CLEAN="${PKG_VER#v}"
+          GIT_VER_CLEAN="${GIT_VER#v}"
+          echo "Comparing: $PKG_VER_CLEAN vs $GIT_VER_CLEAN"
+          if [ "$PKG_VER_CLEAN" == "$GIT_VER_CLEAN" ]; then
             echo "# No new release needed" >> $GITHUB_STEP_SUMMARY
             exit 0
           else
