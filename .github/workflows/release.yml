@@ -33,10 +33,10 @@ jobs:
       - run: pnpm build
 
       - name: Create Release (if needed)
+        # Uses OIDC trusted publishing - no NPM_TOKEN needed
+        # See: https://docs.npmjs.com/trusted-publishers
         env:
           GH_TOKEN: ${{ github.token }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
         run: |
           # Skip release on root commit (no parent)
           if ! git rev-parse HEAD^ > /dev/null 2>&1; then
@@ -60,7 +60,7 @@ jobs:
           else
             echo "New release needed"
             gh release create "$PKG_VER" -t "$PKG_VER" --generate-notes
-            # publish to npm (--access public required for scoped packages with provenance)
+            # Publish via OIDC trusted publishing (provenance auto-generated)
             pnpm publish --no-git-checks --access public
             # Add the release information to the github actions summary
             echo "# New Release Created" >> $GITHUB_STEP_SUMMARY
