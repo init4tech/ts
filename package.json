@@ -77,12 +77,12 @@
   "license": "MIT OR Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/init4tech/signet-sdk-ts.git"
+    "url": "git+https://github.com/init4tech/ts.git"
   },
   "bugs": {
-    "url": "https://github.com/init4tech/signet-sdk-ts/issues"
+    "url": "https://github.com/init4tech/ts/issues"
   },
-  "homepage": "https://github.com/init4tech/signet-sdk-ts#readme",
+  "homepage": "https://github.com/init4tech/ts#readme",
   "keywords": [
     "signet",
     "ethereum",
