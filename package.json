@@ -1,6 +1,6 @@
 {
   "name": "@signet-sh/sdk",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "TypeScript SDK for Signet Orders - create, sign, and verify orders compatible with signet-types",
   "type": "module",
   "main": "./dist/index.js",
