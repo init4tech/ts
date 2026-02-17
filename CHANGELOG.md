@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `tokenDecimals` field on `SignetSystemConstants` for testnet overrides
 - PARMIGIANA now includes `tokenDecimals: { WUSD: 18 }` override
 - `Flow` type export (`"passage"` | `"orders"`)
+- `OrderEvent`, `FilledEvent`, `SweepEvent` typed event result interfaces for `parseEventLogs` DX
 - RPC Patterns documentation section in README
 
 ### Changed

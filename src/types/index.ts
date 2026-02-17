@@ -22,6 +22,8 @@ export type {
 
 export type { SignedFill } from "./fill.js";
 
+export type { FilledEvent, OrderEvent, SweepEvent } from "./events.js";
+
 export {
   OUTPUT_WITNESS_TYPE_STRING,
   PERMIT_BATCH_WITNESS_TRANSFER_FROM_TYPES,

@@ -58,8 +58,10 @@ export type {
   Bytes,
   CallBundleTransactionResult,
   ChainConfig,
+  FilledEvent,
   Hex,
   Input,
+  OrderEvent,
   Output,
   Permit2Batch,
   PermitBatchTransferFrom,
@@ -73,6 +75,7 @@ export type {
   SignetCallBundle,
   SignetCallBundleResponse,
   SignetEthBundle,
+  SweepEvent,
   TokenPermissions,
   UnsignedOrderParams,
 } from "./types/index.js";
