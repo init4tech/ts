@@ -32,6 +32,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
 
+      - name: Install npm 11+ for trusted publishing
+        run: npm install -g npm@latest
+
       - name: Create Release (if needed)
         # Uses OIDC trusted publishing - no NPM_TOKEN needed
         # See: https://docs.npmjs.com/trusted-publishers
