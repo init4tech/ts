@@ -11,6 +11,7 @@ export interface SignetSystemConstants {
   readonly hostTransactor: Address;
   readonly rollupPassage: Address;
   readonly txCacheUrl: string;
+  readonly faucetUrl?: string;
   readonly slotTime: bigint;
   readonly tokenDecimals?: Partial<Record<TokenSymbol, number>>;
 }
@@ -38,6 +39,7 @@ export const PARMIGIANA: SignetSystemConstants = {
   hostTransactor: "0x0B4fc18e78c585687E01c172a1087Ea687943db9",
   rollupPassage: "0x0000000000007369676E65742D70617373616765",
   txCacheUrl: "https://transactions.parmigiana.signet.sh",
+  faucetUrl: "https://faucet.parmigiana.signet.sh",
   slotTime: 12n,
   tokenDecimals: {
     WUSD: 18,

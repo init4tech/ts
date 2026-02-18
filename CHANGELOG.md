@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Faucet client** for requesting testnet tokens programmatically
+  - `createFaucetClient(url)` factory function
+  - `requestTokens(address, assets?)` to request USD and/or ETH
+  - `checkCooldown(addresses)` to check rate limit status
+  - `canRequest(address)` convenience method
+- `FaucetRequestError` class with `isRateLimited` helper for error handling
+- Faucet types: `FaucetDripResponse`, `FaucetStatusResponse`, `FaucetAsset`, etc.
+- `faucetUrl` field on `SignetSystemConstants`
+- PARMIGIANA now includes `faucetUrl: "https://faucet.parmigiana.signet.sh"`
 - `getTokenDecimals(symbol, config?)` helper for chain-aware decimal lookup
 - `tokenDecimals` field on `SignetSystemConstants` for testnet overrides
 - PARMIGIANA now includes `tokenDecimals: { WUSD: 18 }` override

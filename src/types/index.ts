@@ -64,3 +64,18 @@ export {
   serializeCallBundle,
   serializeEthBundle,
 } from "./bundleSerialization.js";
+
+export type {
+  FaucetAddressStatus,
+  FaucetAsset,
+  FaucetAssetCooldown,
+  FaucetAssetResult,
+  FaucetDripData,
+  FaucetDripRequest,
+  FaucetDripResponse,
+  FaucetError,
+  FaucetStatusRequest,
+  FaucetStatusResponse,
+} from "./faucet.js";
+
+export { FaucetRequestError } from "./faucet.js";
