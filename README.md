@@ -94,6 +94,53 @@ const { id } = await txCache.submitOrder(signedOrder);
 console.log(`Order submitted with ID: ${id}`);
 ```
 
+### Preflight Checks
+
+Before submitting an order, verify it can actually execute on-chain:
+
+```typescript
+import { checkOrderFeasibility } from "@signet-sh/sdk";
+import type { FeasibilityIssue } from "@signet-sh/sdk";
+
+const result = await checkOrderFeasibility(publicClient, signedOrder);
+
+if (!result.feasible) {
+  for (const issue of result.issues) {
+    console.warn(`${issue.type}: ${issue.message}`);
+  }
+}
+```
+
+`checkOrderFeasibility` runs all checks and returns a `FeasibilityResult` with a list of issues:
+
+| Issue Type               | Description                                            |
+| ------------------------ | ------------------------------------------------------ |
+| `insufficient_balance`   | Owner lacks enough tokens for one or more inputs       |
+| `insufficient_allowance` | Owner has not approved Permit2 for the required amount |
+| `nonce_used`             | The Permit2 nonce has already been consumed            |
+| `deadline_expired`       | The order deadline is in the past                      |
+
+Each `FeasibilityIssue` includes `token`, `required`, and `available` fields where applicable.
+
+#### Individual Checks
+
+For more targeted checks, use the lower-level functions directly:
+
+```typescript
+import { hasPermit2Approval, isNonceUsed, randomNonce } from "@signet-sh/sdk";
+
+// Check Permit2 allowance for specific tokens
+const approved = await hasPermit2Approval(publicClient, ownerAddress, [
+  { token: usdcAddress, amount: 1000000n },
+]);
+
+// Check if a nonce has been consumed
+const used = await isNonceUsed(publicClient, ownerAddress, nonce);
+
+// Generate a random 256-bit nonce
+const nonce = randomNonce();
+```
+
 ### On-Chain Operations
 
 The SDK exports ABIs and constants for on-chain operations. Use viem directly for contract interactions:
@@ -436,6 +483,9 @@ const balances = await Promise.all(
 - `OrderEvent` - Parsed args from an `Order` event
 - `FilledEvent` - Parsed args from a `Filled` event
 - `SweepEvent` - Parsed args from a `Sweep` event
+- `FeasibilityResult` - Result of a preflight feasibility check
+- `FeasibilityIssue` - A single issue preventing order execution
+- `FeasibilityIssueType` - Issue category: `"insufficient_balance"` | `"insufficient_allowance"` | `"nonce_used"` | `"deadline_expired"`
 - `Flow` - Entry mechanism type: `"passage"` or `"orders"`
 - `TokenSymbol` - Supported token symbols
 
@@ -448,6 +498,10 @@ const balances = await Promise.all(
 - `serializeCallBundle(bundle)` - Serialize call bundle for JSON-RPC
 - `createTxCacheClient(url)` - Create a tx-cache client for bundle submission
 - `ensurePermit2Approval(walletClient, publicClient, params)` - Smart Permit2 approval with USDT handling
+- `checkOrderFeasibility(client, order)` - Check if an order can execute on-chain
+- `hasPermit2Approval(client, owner, tokens)` - Check Permit2 allowance for tokens
+- `isNonceUsed(client, owner, nonce)` - Check if a Permit2 nonce has been consumed
+- `randomNonce()` - Generate a random 256-bit Permit2 nonce
 - `getTokenDecimals(symbol, config?)` - Get token decimals with chain-specific overrides
 - `needsWethWrap(symbol, direction, flow)` - Check if ETH needs wrapping for operation
 
