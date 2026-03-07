@@ -4,7 +4,15 @@
  * These tests run against a local Anvil instance forking Parmigiana.
  * Run with: npm run test:anvil
  */
-import { describe, expect, it, beforeAll, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  expect,
+  it,
+  beforeAll,
+  beforeEach,
+  afterEach,
+  vi,
+} from "vitest";
 import {
   createPublicClient,
   createTestClient,
@@ -24,6 +32,15 @@ import {
 } from "../src/index.js";
 import { PERMIT2_ADDRESS } from "../src/constants/permit2.js";
 import { setTokenAllowance, setTokenBalance } from "./testToken.js";
+
+const mockIsNonceUsed = vi.fn().mockResolvedValue(false);
+
+vi.mock("../src/signing/nonce.js", async (importOriginal) => {
+  return {
+    ...(await importOriginal()),
+    isNonceUsed: mockIsNonceUsed,
+  };
+});
 
 const TEST_PRIVATE_KEY =
   "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" as Hex;
@@ -253,6 +270,93 @@ describe("Order feasibility", () => {
       const issueTypes = result.issues.map((i) => i.type);
       expect(issueTypes).toContain("insufficient_balance");
       expect(issueTypes).toContain("insufficient_allowance");
+    });
+
+    it("returns deadline_expired issue when deadline is in the past", async () => {
+      const inputAmount = parseEther("100");
+
+      await setTokenBalance(
+        testClient,
+        TEST_TOKEN,
+        account.address,
+        inputAmount,
+        publicClient
+      );
+      await setTokenAllowance(
+        testClient,
+        TEST_TOKEN,
+        account.address,
+        PERMIT2_ADDRESS,
+        inputAmount,
+        publicClient
+      );
+
+      const deadline = BigInt(Math.floor(Date.now() / 1000) - 3600);
+      const order = await UnsignedOrder.new()
+        .withInput(TEST_TOKEN, inputAmount)
+        .withOutput(
+          TEST_TOKEN,
+          parseEther("99"),
+          account.address,
+          Number(PARMIGIANA.hostChainId)
+        )
+        .withDeadline(deadline)
+        .withChain({
+          chainId: PARMIGIANA.rollupChainId,
+          orderContract: PARMIGIANA.rollupOrders,
+        })
+        .sign(walletClient);
+
+      const result = await checkOrderFeasibility(publicClient, order);
+
+      expect(result.feasible).toBe(false);
+      expect(result.issues.some((i) => i.type === "deadline_expired")).toBe(
+        true
+      );
+    });
+
+    it("returns nonce_used issue when nonce has been consumed", async () => {
+      const inputAmount = parseEther("100");
+
+      await setTokenBalance(
+        testClient,
+        TEST_TOKEN,
+        account.address,
+        inputAmount,
+        publicClient
+      );
+      await setTokenAllowance(
+        testClient,
+        TEST_TOKEN,
+        account.address,
+        PERMIT2_ADDRESS,
+        inputAmount,
+        publicClient
+      );
+
+      mockIsNonceUsed.mockResolvedValueOnce(true);
+
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600);
+      const order = await UnsignedOrder.new()
+        .withInput(TEST_TOKEN, inputAmount)
+        .withOutput(
+          TEST_TOKEN,
+          parseEther("99"),
+          account.address,
+          Number(PARMIGIANA.hostChainId)
+        )
+        .withDeadline(deadline)
+        .withChain({
+          chainId: PARMIGIANA.rollupChainId,
+          orderContract: PARMIGIANA.rollupOrders,
+        })
+        .sign(walletClient);
+
+      const result = await checkOrderFeasibility(publicClient, order);
+
+      expect(result.feasible).toBe(false);
+      expect(result.issues).toHaveLength(1);
+      expect(result.issues[0].type).toBe("nonce_used");
     });
   });
 

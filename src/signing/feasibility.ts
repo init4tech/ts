@@ -3,6 +3,8 @@ import { erc20Abi } from "viem";
 import { PERMIT2_ADDRESS } from "../constants/permit2.js";
 import type { SignedOrder } from "../types/order.js";
 import type { TokenPermissions } from "../types/primitives.js";
+import { nowSeconds } from "../utils/time.js";
+import { isNonceUsed } from "./nonce.js";
 
 /**
  * Categories of feasibility issues.
@@ -10,7 +12,8 @@ import type { TokenPermissions } from "../types/primitives.js";
 export type FeasibilityIssueType =
   | "insufficient_balance"
   | "insufficient_allowance"
-  | "nonce_used";
+  | "nonce_used"
+  | "deadline_expired";
 
 /**
  * A single issue preventing order feasibility.
@@ -64,6 +67,22 @@ export async function checkOrderFeasibility(
   const issues: FeasibilityIssue[] = [];
   const owner = order.permit.owner;
   const tokens = order.permit.permit.permitted;
+
+  // Check if deadline has expired
+  if (order.permit.permit.deadline < nowSeconds()) {
+    issues.push({
+      type: "deadline_expired",
+      message: "Order permit deadline has expired",
+    });
+  }
+
+  // Check if nonce has been consumed
+  if (await isNonceUsed(client, owner, order.permit.permit.nonce)) {
+    issues.push({
+      type: "nonce_used",
+      message: "Order permit nonce has already been used",
+    });
+  }
 
   // Check balance and allowance for each input token
   const checks = tokens.map(async (token) => {

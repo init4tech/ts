@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `deadline_expired` check in `checkOrderFeasibility` — detects orders with expired permit deadlines
+- `nonce_used` check in `checkOrderFeasibility` — detects orders whose Permit2 nonce has already been consumed
+
 ## [0.4.0] - 2026-02-17
 
 ### Added
