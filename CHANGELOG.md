@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `SerializedSignedOrder` type and `serializeOrder`/`deserializeOrder` now flatten `owner` and `signature` to the top level, matching Rust's `#[serde(flatten)]` on `Permit2Batch`
+
 ### Added
 
 - `deadline_expired` check in `checkOrderFeasibility` — detects orders with expired permit deadlines

@@ -48,18 +48,16 @@ export interface UnsignedOrderParams {
  * Amounts are hex-encoded strings.
  */
 export interface SerializedSignedOrder {
+  readonly owner: Address;
   readonly permit: {
-    readonly permit: {
-      readonly permitted: readonly {
-        readonly token: Address;
-        readonly amount: Hex;
-      }[];
-      readonly nonce: Hex;
-      readonly deadline: Hex;
-    };
-    readonly owner: Address;
-    readonly signature: Hex;
+    readonly permitted: readonly {
+      readonly token: Address;
+      readonly amount: Hex;
+    }[];
+    readonly nonce: Hex;
+    readonly deadline: Hex;
   };
+  readonly signature: Hex;
   readonly outputs: readonly {
     readonly token: Address;
     readonly amount: Hex;
