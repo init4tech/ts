@@ -1,4 +1,4 @@
-// Generated from crates/zenith/abi/HostOrders.json
+/** HostOrders contract ABI. Generated from crates/zenith/abi/HostOrders.json. */
 export const hostOrdersAbi = [
   {
     type: "constructor",

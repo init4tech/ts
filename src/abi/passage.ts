@@ -1,4 +1,4 @@
-// Generated from crates/zenith/abi/Passage.json
+/** Passage contract ABI. Generated from crates/zenith/abi/Passage.json. */
 export const passageAbi = [
   {
     type: "constructor",

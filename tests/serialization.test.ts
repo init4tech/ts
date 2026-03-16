@@ -59,5 +59,11 @@ describe("serialization round-trip", () => {
       const deserialized = deserializeOrder(serialized);
       expect(deserialized).toEqual(order);
     });
+
+    it(`serializes ${v.name} to match Rust vector shape`, () => {
+      const order = parseVector(v);
+      const serialized = serializeOrder(order);
+      expect(serialized).toEqual(v.signedOrder);
+    });
   }
 });
