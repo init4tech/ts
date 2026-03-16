@@ -46,6 +46,10 @@ export interface UnsignedOrderParams {
 /**
  * Serialized form of a signed order for JSON transport.
  * Amounts are hex-encoded strings.
+ *
+ * The `owner` and `signature` fields are flattened to the top level to match
+ * Rust's `#[serde(flatten)]` on `Permit2Batch`. The `permit` field contains
+ * only the inner `PermitBatchTransferFrom` data.
  */
 export interface SerializedSignedOrder {
   readonly owner: Address;

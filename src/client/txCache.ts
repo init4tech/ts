@@ -1,13 +1,18 @@
+/**
+ * Client for the Signet transaction cache service.
+ */
 import type { SignetEthBundle } from "../types/bundle.js";
 import type { SignedOrder } from "../types/order.js";
 import { serializeEthBundle } from "../types/bundleSerialization.js";
 import { serializeOrder } from "../types/serialization.js";
 
+/** Client interface for submitting orders and bundles to the transaction cache. */
 export interface TxCacheClient {
   submitOrder(order: SignedOrder): Promise<{ id: string }>;
   submitBundle(bundle: SignetEthBundle): Promise<{ id: string }>;
 }
 
+/** Create a {@link TxCacheClient} that posts to the given base URL. */
 export function createTxCacheClient(baseUrl: string): TxCacheClient {
   async function post(path: string, body: unknown): Promise<{ id: string }> {
     const response = await fetch(`${baseUrl}${path}`, {

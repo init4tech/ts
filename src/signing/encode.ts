@@ -1,9 +1,13 @@
+/**
+ * ABI encoding helpers for order and fill contract calls.
+ */
 import { encodeFunctionData, type Address, type Hex } from "viem";
 import type { SignedOrder } from "../types/order.js";
 import type { SignedFill } from "../types/fill.js";
 import { rollupOrdersAbi } from "../abi/rollupOrders.js";
 import { hostOrdersAbi } from "../abi/hostOrders.js";
 
+/** Encode calldata for `RollupOrders.initiatePermit2`. */
 export function encodeInitiatePermit2(
   order: SignedOrder,
   tokenRecipient: Address
@@ -15,6 +19,7 @@ export function encodeInitiatePermit2(
   });
 }
 
+/** Encode calldata for `HostOrders.fillPermit2`. */
 export function encodeFillPermit2(fill: SignedFill): Hex {
   return encodeFunctionData({
     abi: hostOrdersAbi,

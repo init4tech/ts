@@ -1,11 +1,16 @@
+/**
+ * Token metadata and decimal lookups.
+ */
 import type { SignetSystemConstants } from "../constants/chains.js";
 
+/** Metadata for a known token. */
 export interface TokenMeta {
   readonly symbol: string;
   readonly name: string;
   readonly decimals: number;
 }
 
+/** Registry of known tokens and their metadata. */
 export const TOKENS = {
   ETH: { symbol: "ETH", name: "Ether", decimals: 18 },
   WETH: { symbol: "WETH", name: "Wrapped Ether", decimals: 18 },
@@ -16,6 +21,7 @@ export const TOKENS = {
   USD: { symbol: "USD", name: "USD", decimals: 18 },
 } as const satisfies Record<string, TokenMeta>;
 
+/** Union of known token symbol strings. */
 export type TokenSymbol = keyof typeof TOKENS;
 
 /**

@@ -1,6 +1,10 @@
+/**
+ * Chain configuration constants for Signet networks.
+ */
 import type { Address } from "viem";
 import type { TokenSymbol } from "../tokens/constants.js";
 
+/** System-wide contract addresses and chain IDs for a Signet deployment. */
 export interface SignetSystemConstants {
   readonly hostChainId: bigint;
   readonly rollupChainId: bigint;
@@ -15,6 +19,7 @@ export interface SignetSystemConstants {
   readonly tokenDecimals?: Partial<Record<TokenSymbol, number>>;
 }
 
+/** Signet mainnet (host chain 1, rollup chain 519) constants. */
 export const MAINNET: SignetSystemConstants = {
   hostChainId: 1n,
   rollupChainId: 519n,
@@ -28,6 +33,7 @@ export const MAINNET: SignetSystemConstants = {
   slotTime: 12n,
 } as const;
 
+/** Parmigiana testnet (host chain 3151908, rollup chain 88888) constants. */
 export const PARMIGIANA: SignetSystemConstants = {
   hostChainId: 3151908n,
   rollupChainId: 88888n,
@@ -44,6 +50,7 @@ export const PARMIGIANA: SignetSystemConstants = {
   },
 } as const;
 
+/** Look up the orders contract address for a given chain ID within a deployment. */
 export function getOrdersContract(
   constants: SignetSystemConstants,
   chainId: bigint

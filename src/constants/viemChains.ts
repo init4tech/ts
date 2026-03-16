@@ -1,5 +1,9 @@
+/**
+ * Viem chain definitions for Signet networks.
+ */
 import { defineChain } from "viem";
 
+/** Viem chain definition for the Signet mainnet rollup (chain 519). */
 export const signetRollup = defineChain({
   id: 519,
   name: "Signet",
@@ -9,6 +13,7 @@ export const signetRollup = defineChain({
   },
 });
 
+/** Viem chain definition for the Parmigiana testnet rollup (chain 88888). */
 export const parmigianaRollup = defineChain({
   id: 88888,
   name: "Parmigiana",
@@ -24,6 +29,7 @@ export const parmigianaRollup = defineChain({
   },
 });
 
+/** Viem chain definition for the Parmigiana testnet host chain (chain 3151908). */
 export const parmigianaHost = defineChain({
   id: 3151908,
   name: "Parmigiana Host",

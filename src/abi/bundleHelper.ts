@@ -1,4 +1,4 @@
-// Generated from crates/zenith/abi/BundleHelper.json
+/** BundleHelper contract ABI. Generated from crates/zenith/abi/BundleHelper.json. */
 export const bundleHelperAbi = [
   {
     type: "constructor",

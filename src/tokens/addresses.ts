@@ -1,3 +1,6 @@
+/**
+ * Token address lookups for Signet networks.
+ */
 import { isAddressEqual, type Address } from "viem";
 import type { SignetSystemConstants } from "../constants/chains.js";
 import type { TokenSymbol } from "./constants.js";
@@ -59,6 +62,7 @@ function getSide(
   return undefined;
 }
 
+/** Get the on-chain address for a token symbol on a specific chain. */
 export function getTokenAddress(
   symbol: TokenSymbol,
   chainId: bigint,
@@ -69,6 +73,7 @@ export function getTokenAddress(
   return getSide(network, chainId, constants)?.[symbol];
 }
 
+/** Resolve a token address back to its symbol on a specific chain. */
 export function resolveTokenSymbol(
   address: Address,
   chainId: bigint,
@@ -84,6 +89,7 @@ export function resolveTokenSymbol(
   return entry?.[0] as TokenSymbol | undefined;
 }
 
+/** List all token symbols available on a specific chain. */
 export function getAvailableTokens(
   chainId: bigint,
   constants: SignetSystemConstants

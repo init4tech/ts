@@ -27,6 +27,8 @@
 - Keep functions small and focused
 - Write tests that fail fast - use direct assertions, no Result returns
 - Avoid unnecessary nesting and closures
+- ALWAYS write JSDoc comments for all exported functions, types, interfaces, and constants
+- JSDoc should explain the purpose and any non-obvious design decisions (e.g. why a structure is shaped a certain way)
 
 ## Project Structure
 

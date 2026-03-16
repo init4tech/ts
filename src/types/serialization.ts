@@ -1,6 +1,10 @@
+/**
+ * Serialization and deserialization for signed orders.
+ */
 import { fromHex, toHex } from "viem";
 import type { SignedOrder, SerializedSignedOrder } from "./order.js";
 
+/** Serialize a {@link SignedOrder} to its JSON-transport representation. */
 export function serializeOrder(order: SignedOrder): SerializedSignedOrder {
   const { permit, outputs } = order;
   return {
@@ -23,6 +27,7 @@ export function serializeOrder(order: SignedOrder): SerializedSignedOrder {
   };
 }
 
+/** Deserialize a {@link SerializedSignedOrder} back into a {@link SignedOrder}. */
 export function deserializeOrder(raw: SerializedSignedOrder): SignedOrder {
   return {
     permit: {

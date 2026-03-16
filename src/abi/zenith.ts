@@ -1,4 +1,4 @@
-// Generated from crates/zenith/abi/Zenith.json
+/** Zenith contract ABI. Generated from crates/zenith/abi/Zenith.json. */
 export const zenithAbi = [
   {
     type: "constructor",

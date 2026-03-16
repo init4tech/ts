@@ -19,6 +19,7 @@ const BRIDGEABLE_TOKENS = new Set<TokenSymbol>([
   "USDT",
 ]);
 
+/** Map a token symbol across chains. Returns the symbol if bridgeable, undefined otherwise. */
 export function mapTokenCrossChain(
   symbol: TokenSymbol
 ): TokenSymbol | undefined {

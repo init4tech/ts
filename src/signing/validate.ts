@@ -1,8 +1,12 @@
+/**
+ * Runtime validation for signed orders and fills.
+ */
 import { isAddressEqual } from "viem";
 import type { SignedFill } from "../types/fill.js";
 import type { SignedOrder } from "../types/order.js";
 import { nowSeconds } from "../utils/time.js";
 
+/** Validate that a signed order has not expired. Throws on failure. */
 export function validateOrder(order: SignedOrder): void {
   const now = nowSeconds();
   if (order.permit.permit.deadline < now) {
@@ -12,6 +16,7 @@ export function validateOrder(order: SignedOrder): void {
   }
 }
 
+/** Validate that a signed fill has not expired and its outputs match permitted tokens. Throws on failure. */
 export function validateFill(fill: SignedFill): void {
   const now = nowSeconds();
   if (fill.permit.permit.deadline < now) {
