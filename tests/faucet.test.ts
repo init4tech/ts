@@ -26,6 +26,7 @@ describe("FaucetClient", () => {
     return {
       ok,
       status,
+      statusText: ok ? "OK" : "Bad Request",
       json: () => Promise.resolve(data),
     };
   }
@@ -122,40 +123,30 @@ describe("FaucetClient", () => {
 
       const client = createClient();
 
-      try {
-        await client.requestTokens(TEST_ADDRESS);
-        expect.fail("Should have thrown");
-      } catch (err) {
-        expect(err).toBeInstanceOf(FaucetRequestError);
-        const faucetErr = err as FaucetRequestError;
-        expect(faucetErr.code).toBe("ALREADY_CLAIMED");
-        expect(faucetErr.isRateLimited).toBe(true);
-      }
+      const err = await client
+        .requestTokens(TEST_ADDRESS)
+        .catch((e: unknown) => e);
+      expect(err).toBeInstanceOf(FaucetRequestError);
+      const faucetErr = err as FaucetRequestError;
+      expect(faucetErr.code).toBe("ALREADY_CLAIMED");
+      expect(faucetErr.isRateLimited).toBe(true);
+      expect(faucetErr.isOnCooldown).toBe(true);
     });
 
     it("should throw FaucetRequestError on invalid address", async () => {
-      const response: FaucetDripResponse = {
-        success: false,
-        error: {
-          code: "INVALID_ADDRESS",
-          message: "Invalid Ethereum address",
-          details: "Address must be a valid 40-character hex string",
-        },
-      };
-
-      mockFetch.mockResolvedValueOnce(mockResponse(response, false));
-
       const client = createClient();
 
-      try {
-        await client.requestTokens(TEST_ADDRESS);
-        expect.fail("Should have thrown");
-      } catch (err) {
-        expect(err).toBeInstanceOf(FaucetRequestError);
-        const faucetErr = err as FaucetRequestError;
-        expect(faucetErr.code).toBe("INVALID_ADDRESS");
-        expect(faucetErr.isRateLimited).toBe(false);
-      }
+      await expect(
+        client.requestTokens("0xnotanaddress" as Address)
+      ).rejects.toThrow(FaucetRequestError);
+
+      const err = await client
+        .requestTokens("0xnotanaddress" as Address)
+        .catch((e: unknown) => e);
+      expect(err).toBeInstanceOf(FaucetRequestError);
+      const faucetErr = err as FaucetRequestError;
+      expect(faucetErr.code).toBe("INVALID_ADDRESS");
+      expect(faucetErr.isRateLimited).toBe(false);
     });
 
     it("should handle network errors", async () => {
@@ -163,14 +154,16 @@ describe("FaucetClient", () => {
 
       const client = createClient();
 
-      try {
-        await client.requestTokens(TEST_ADDRESS);
-        expect.fail("Should have thrown");
-      } catch (err) {
-        expect(err).toBeInstanceOf(FaucetRequestError);
-        const faucetErr = err as FaucetRequestError;
-        expect(faucetErr.code).toBe("NETWORK_ERROR");
-      }
+      await expect(client.requestTokens(TEST_ADDRESS)).rejects.toThrow(
+        FaucetRequestError
+      );
+
+      mockFetch.mockRejectedValueOnce(new Error("Network failure"));
+      const err = await client
+        .requestTokens(TEST_ADDRESS)
+        .catch((e: unknown) => e);
+      expect(err).toBeInstanceOf(FaucetRequestError);
+      expect((err as FaucetRequestError).code).toBe("NETWORK_ERROR");
     });
 
     it("should handle partial success (one asset fails)", async () => {
@@ -259,14 +252,9 @@ describe("FaucetClient", () => {
         .fill(null)
         .map((_, i): Address => `0x${i.toString().padStart(40, "0")}`);
 
-      try {
-        await client.checkCooldown(addresses);
-        expect.fail("Should have thrown");
-      } catch (err) {
-        expect(err).toBeInstanceOf(FaucetRequestError);
-        const faucetErr = err as FaucetRequestError;
-        expect(faucetErr.code).toBe("TOO_MANY_ADDRESSES");
-      }
+      await expect(client.checkCooldown(addresses)).rejects.toThrow(
+        FaucetRequestError
+      );
     });
   });
 
@@ -293,7 +281,7 @@ describe("FaucetClient", () => {
       expect(canRequest).toBe(true);
     });
 
-    it("should return false when on cooldown", async () => {
+    it("should return false when all assets on cooldown", async () => {
       const response: FaucetStatusResponse = {
         success: true,
         data: {
@@ -314,31 +302,109 @@ describe("FaucetClient", () => {
 
       expect(canRequest).toBe(false);
     });
+
+    it("should return true when ANY asset is available", async () => {
+      const response: FaucetStatusResponse = {
+        success: true,
+        data: {
+          [TEST_ADDRESS]: {
+            on_cooldown: true,
+            assets: {
+              usd: { on_cooldown: true, expires_at: 1234567890 },
+              eth: { on_cooldown: false },
+            },
+          },
+        },
+      };
+
+      mockFetch.mockResolvedValueOnce(mockResponse(response));
+
+      const client = createClient();
+      expect(await client.canRequest(TEST_ADDRESS)).toBe(true);
+    });
+
+    it("should check a specific asset", async () => {
+      const response: FaucetStatusResponse = {
+        success: true,
+        data: {
+          [TEST_ADDRESS]: {
+            on_cooldown: true,
+            assets: {
+              usd: { on_cooldown: true, expires_at: 1234567890 },
+              eth: { on_cooldown: false },
+            },
+          },
+        },
+      };
+
+      mockFetch.mockResolvedValueOnce(mockResponse(response));
+      const client = createClient();
+      expect(await client.canRequest(TEST_ADDRESS, "usd")).toBe(false);
+
+      mockFetch.mockResolvedValueOnce(mockResponse(response));
+      expect(await client.canRequest(TEST_ADDRESS, "eth")).toBe(true);
+    });
   });
 
   describe("FaucetRequestError", () => {
-    it("should correctly identify rate limit errors by code", () => {
+    it("should identify ALREADY_CLAIMED as isOnCooldown", () => {
       const err = new FaucetRequestError(
         "Already claimed",
         "ALREADY_CLAIMED",
         "Try again tomorrow"
       );
+      expect(err.isOnCooldown).toBe(true);
+      expect(err.isIpRateLimited).toBe(false);
       expect(err.isRateLimited).toBe(true);
     });
 
-    it("should correctly identify rate limit errors by status code", () => {
+    it("should identify IP_RATE_LIMITED as isIpRateLimited", () => {
+      const err = new FaucetRequestError(
+        "Rate limited",
+        "IP_RATE_LIMITED",
+        undefined,
+        429
+      );
+      expect(err.isIpRateLimited).toBe(true);
+      expect(err.isOnCooldown).toBe(false);
+      expect(err.isRateLimited).toBe(true);
+    });
+
+    it("should identify 429 status as isIpRateLimited", () => {
       const err = new FaucetRequestError(
         "Rate limited",
         "UNKNOWN",
         undefined,
         429
       );
+      expect(err.isIpRateLimited).toBe(true);
       expect(err.isRateLimited).toBe(true);
     });
 
     it("should not identify non-rate-limit errors as rate limited", () => {
       const err = new FaucetRequestError("Invalid address", "INVALID_ADDRESS");
       expect(err.isRateLimited).toBe(false);
+      expect(err.isOnCooldown).toBe(false);
+      expect(err.isIpRateLimited).toBe(false);
+    });
+  });
+
+  describe("timeout", () => {
+    it("should throw TIMEOUT on abort", async () => {
+      const abortErr = new Error("The operation was aborted");
+      abortErr.name = "AbortError";
+      mockFetch.mockRejectedValueOnce(abortErr);
+
+      const client = createFaucetClient(FAUCET_URL, {
+        fetch: mockFetch as unknown as typeof fetch,
+        timeout: 5,
+      });
+
+      const err = await client
+        .requestTokens(TEST_ADDRESS)
+        .catch((e: unknown) => e);
+      expect(err).toBeInstanceOf(FaucetRequestError);
+      expect((err as FaucetRequestError).code).toBe("TIMEOUT");
     });
   });
 

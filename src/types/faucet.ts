@@ -142,8 +142,18 @@ export class FaucetRequestError extends Error {
     this.statusCode = statusCode;
   }
 
-  /** Whether this is a rate limit / cooldown error */
+  /** Whether this is an address-level daily cooldown error */
+  get isOnCooldown(): boolean {
+    return this.code === "ALREADY_CLAIMED";
+  }
+
+  /** Whether this is a transient IP rate limit error */
+  get isIpRateLimited(): boolean {
+    return this.code === "IP_RATE_LIMITED" || this.statusCode === 429;
+  }
+
+  /** Whether this is a rate limit / cooldown error (union of cooldown and IP rate limit) */
   get isRateLimited(): boolean {
-    return this.code === "ALREADY_CLAIMED" || this.statusCode === 429;
+    return this.isOnCooldown || this.isIpRateLimited;
   }
 }

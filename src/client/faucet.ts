@@ -17,6 +17,7 @@
  * const status = await faucet.checkCooldown(["0x..."]);
  * ```
  */
+import { getAddress } from "viem";
 import type { Address } from "viem";
 import type {
   FaucetAsset,
@@ -78,19 +79,25 @@ export interface FaucetClient {
   ): Promise<Record<Address, FaucetAddressStatus>>;
 
   /**
-   * Check if an address can request tokens (not on cooldown for any asset).
+   * Check if an address can request tokens.
    *
    * @param address - Address to check
-   * @returns True if the address can request at least one asset
+   * @param asset - Optional specific asset to check. If omitted, returns true if ANY asset is available.
+   * @returns True if the address can request the specified (or any) asset
    *
    * @example
    * ```typescript
    * if (await faucet.canRequest("0x742d35...")) {
    *   await faucet.requestTokens("0x742d35...");
    * }
+   *
+   * // Check a specific asset
+   * if (await faucet.canRequest("0x742d35...", "usd")) {
+   *   await faucet.requestTokens("0x742d35...", ["usd"]);
+   * }
    * ```
    */
-  canRequest(address: Address): Promise<boolean>;
+  canRequest(address: Address, asset?: FaucetAsset): Promise<boolean>;
 }
 
 /**
@@ -155,6 +162,24 @@ export function createFaucetClient(
         signal: controller.signal,
       });
 
+      if (!response.ok) {
+        let errorData:
+          | { error?: { code?: string; message?: string; details?: string } }
+          | undefined;
+        try {
+          errorData = (await response.json()) as typeof errorData;
+        } catch {
+          // No JSON body available
+        }
+        throw new FaucetRequestError(
+          errorData?.error?.message ??
+            `Request failed (${String(response.status)} ${response.statusText})`,
+          errorData?.error?.code ?? "HTTP_ERROR",
+          errorData?.error?.details ?? response.statusText,
+          response.status
+        );
+      }
+
       let data: T;
       try {
         data = (await response.json()) as T;
@@ -197,13 +222,28 @@ export function createFaucetClient(
       address: Address,
       assets?: FaucetAsset[]
     ): Promise<FaucetDripData> {
+      try {
+        getAddress(address);
+      } catch {
+        throw new FaucetRequestError(
+          "Invalid Ethereum address",
+          "INVALID_ADDRESS",
+          `"${address}" is not a valid address`
+        );
+      }
+
       const response = await post<FaucetDripResponse>("/drip", {
         address,
         ...(assets && assets.length > 0 ? { assets } : {}),
       });
 
-      // Handle complete failure
-      if (!response.success && response.error) {
+      // Return per-asset results if data is present (includes partial success)
+      if (response.data) {
+        return response.data;
+      }
+
+      // Handle complete failure (no data, only error)
+      if (response.error) {
         throw new FaucetRequestError(
           response.error.message,
           response.error.code,
@@ -211,22 +251,27 @@ export function createFaucetClient(
         );
       }
 
-      // Handle missing data
-      if (!response.data) {
-        throw new FaucetRequestError(
-          "Invalid response: missing data",
-          "INVALID_RESPONSE"
-        );
-      }
-
-      // For partial success, data is present but some assets may have errors
-      // The success flag indicates at least one asset succeeded
-      return response.data;
+      throw new FaucetRequestError(
+        "Invalid response: missing data",
+        "INVALID_RESPONSE"
+      );
     },
 
     async checkCooldown(
       addresses: Address[]
     ): Promise<Record<Address, FaucetAddressStatus>> {
+      for (const addr of addresses) {
+        try {
+          getAddress(addr);
+        } catch {
+          throw new FaucetRequestError(
+            "Invalid Ethereum address",
+            "INVALID_ADDRESS",
+            `"${addr}" is not a valid address`
+          );
+        }
+      }
+
       if (addresses.length === 0) {
         return {};
       }
@@ -261,10 +306,16 @@ export function createFaucetClient(
       return response.data;
     },
 
-    async canRequest(address: Address): Promise<boolean> {
+    async canRequest(address: Address, asset?: FaucetAsset): Promise<boolean> {
       const status = await this.checkCooldown([address]);
-      // checkCooldown always returns an entry for each requested address
-      return !status[address].on_cooldown;
+      const addrStatus = status[address];
+
+      if (asset) {
+        return !addrStatus.assets[asset].on_cooldown;
+      }
+
+      // Return true if ANY asset is not on cooldown
+      return Object.values(addrStatus.assets).some((a) => !a.on_cooldown);
     },
   };
 }
